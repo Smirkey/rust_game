@@ -1,0 +1,9 @@
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_diagnostic-d25cf5be5913c954.rmeta: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/diagnostic.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/entity_count_diagnostics_plugin.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/frame_time_diagnostics_plugin.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/log_diagnostics_plugin.rs
+
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_diagnostic-d25cf5be5913c954.d: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/diagnostic.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/entity_count_diagnostics_plugin.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/frame_time_diagnostics_plugin.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/log_diagnostics_plugin.rs
+
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/lib.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/diagnostic.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/entity_count_diagnostics_plugin.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/frame_time_diagnostics_plugin.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_diagnostic-0.7.0/src/log_diagnostics_plugin.rs:

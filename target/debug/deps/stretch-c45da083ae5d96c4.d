@@ -1,0 +1,13 @@
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/stretch-c45da083ae5d96c4.rmeta: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/geometry.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/node.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/number.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/result.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/style.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/algo.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/forest.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/id.rs
+
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/stretch-c45da083ae5d96c4.d: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/geometry.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/node.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/number.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/result.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/style.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/algo.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/forest.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/id.rs
+
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/lib.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/geometry.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/node.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/number.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/result.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/style.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/algo.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/forest.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/stretch-0.3.2/src/id.rs:

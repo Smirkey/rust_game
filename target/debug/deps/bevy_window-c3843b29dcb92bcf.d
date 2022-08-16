@@ -1,0 +1,11 @@
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_window-c3843b29dcb92bcf.rmeta: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/cursor.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/event.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/raw_window_handle.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/system.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/window.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/windows.rs
+
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_window-c3843b29dcb92bcf.d: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/cursor.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/event.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/raw_window_handle.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/system.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/window.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/windows.rs
+
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/lib.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/cursor.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/event.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/raw_window_handle.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/system.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/window.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_window-0.7.0/src/windows.rs:

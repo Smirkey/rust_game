@@ -1,0 +1,12 @@
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_input-c6b10c22f26c70d8.rmeta: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/axis.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/gamepad.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/input.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/keyboard.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/mouse.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/system.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/touch.rs
+
+/Users/guillaume/Code/learn_rust/rust_invaders/target/debug/deps/bevy_input-c6b10c22f26c70d8.d: /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/lib.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/axis.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/gamepad.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/input.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/keyboard.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/mouse.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/system.rs /Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/touch.rs
+
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/lib.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/axis.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/gamepad.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/input.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/keyboard.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/mouse.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/system.rs:
+/Users/guillaume/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_input-0.7.0/src/touch.rs:
