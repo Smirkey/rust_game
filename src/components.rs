@@ -9,7 +9,13 @@ pub struct Velocity {
 #[derive(Component)]
 pub struct Movable {
     pub auto_despawn: bool,
+    pub steerable: bool,
 }
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub struct AngularVelocity {
+    pub angle: f32,
+}

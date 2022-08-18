@@ -1,5 +1,5 @@
 use crate::{
-    components::{Movable, Player, Velocity},
+    components::{AngularVelocity, Movable, Player, Velocity},
     GameTextures, WinSize, BASE_SPEED, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP,
 };
 use ::bevy::prelude::*;
@@ -53,7 +53,9 @@ fn player_spawn_system(
         .insert(Velocity { x: 0., y: 0. })
         .insert(Movable {
             auto_despawn: false,
-        });
+            steerable: true,
+        })
+        .insert(AngularVelocity { angle: 180. });
 }
 
 fn player_keyboard_event_system(
@@ -93,8 +95,12 @@ fn player_fire_system(
                         },
                         ..Default::default()
                     })
-                    .insert(Movable { auto_despawn: true })
-                    .insert(Velocity { x: 0., y: 1. });
+                    .insert(Movable {
+                        auto_despawn: true,
+                        steerable: true,
+                    })
+                    .insert(Velocity { x: 0., y: 1. })
+                    .insert(AngularVelocity { angle: 0. });
             };
 
             spawn_lasers(x_offset);

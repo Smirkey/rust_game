@@ -9,13 +9,14 @@ use bevy_prototype_lyon::{
     },
     shapes::Polygon,
 };
-use components::{Movable, Velocity};
+use components::{AngularVelocity, Movable, Velocity};
 use player::PlayerPlugin;
 mod components;
 mod player;
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SIZE: (f32, f32) = (144., 75.);
+
 const SPRITE_SCALE: f32 = 0.5;
 
 const PLAYER_LASER_SPRITE: &str = "laser_a_01.png";
@@ -78,9 +79,15 @@ fn setup_system(
 fn movable_system(
     mut commands: Commands,
     win_size: Res<WinSize>,
-    mut query: Query<(Entity, &Velocity, &mut Transform, &Movable)>,
+    mut query: Query<(
+        Entity,
+        &Velocity,
+        &mut Transform,
+        &Movable,
+        &AngularVelocity,
+    )>,
 ) {
-    for (entity, velocity, mut transform, movable) in query.iter_mut() {
+    for (entity, velocity, mut transform, movable, angular_velocity) in query.iter_mut() {
         let translation = &mut transform.translation;
         translation.x += velocity.x * TIME_STEP * BASE_SPEED;
         translation.y += velocity.y * TIME_STEP * BASE_SPEED;
@@ -93,6 +100,9 @@ fn movable_system(
             {
                 commands.entity(entity).despawn();
             }
+        }
+        if movable.steerable {
+            transform.rotate(Quat::from_rotation_z(angular_velocity.angle));
         }
     }
 }
