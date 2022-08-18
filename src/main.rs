@@ -1,18 +1,28 @@
 #![allow(unused)]
 
-use::bevy::prelude::*;
+use ::bevy::prelude::*;
+use bevy_prototype_lyon::{
+    entity::ShapeBundle,
+    prelude::{
+        tess::{geom::Rotation, math::Angle},
+        *,
+    },
+    shapes::Polygon,
+};
+use components::{Movable, Velocity};
 use player::PlayerPlugin;
-
-mod player;
 mod components;
+mod player;
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SIZE: (f32, f32) = (144., 75.);
 const SPRITE_SCALE: f32 = 0.5;
 
+const PLAYER_LASER_SPRITE: &str = "laser_a_01.png";
+const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
+
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
-
 
 pub struct WinSize {
     pub w: f32,
@@ -20,9 +30,9 @@ pub struct WinSize {
 }
 
 struct GameTextures {
-    player: Handle<Image>
+    player: Handle<Image>,
+    player_laser: Handle<Image>,
 }
-
 
 fn main() {
     App::new()
@@ -34,41 +44,55 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(ShapePlugin)
         .add_plugin(PlayerPlugin)
         .add_startup_system(setup_system)
+        .add_system(movable_system)
         .run();
 }
 
-fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>, mut windows: ResMut<Windows>) {
+fn setup_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut windows: ResMut<Windows>,
+) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 
     let window = windows.get_primary_mut().unwrap();
 
-    let win_size = WinSize{ w: window.width(), h: window.height() };
+    let win_size = WinSize {
+        w: window.width(),
+        h: window.height(),
+    };
     commands.insert_resource(win_size);
 
-    let game_textures = GameTextures{
+    let game_textures = GameTextures {
         player: asset_server.load(PLAYER_SPRITE),
+        player_laser: asset_server.load(PLAYER_LASER_SPRITE),
     };
     commands.insert_resource(game_textures);
 
     window.set_title(String::from("my rust game"));
 }
 
-fn player_spawn_system(
+fn movable_system(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    game_textures: Res<GameTextures>,
-    win_size: Res<WinSize>
+    win_size: Res<WinSize>,
+    mut query: Query<(Entity, &Velocity, &mut Transform, &Movable)>,
 ) {
-    let bottom = -win_size.h / 2.;
-    commands.spawn_bundle(SpriteBundle {
-        texture: game_textures.player.clone(),
-        transform: Transform {
-            translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE, 10.), 
-            scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
-            ..Default::default()
-        },
-        ..Default::default()
-    });
+    for (entity, velocity, mut transform, movable) in query.iter_mut() {
+        let translation = &mut transform.translation;
+        translation.x += velocity.x * TIME_STEP * BASE_SPEED;
+        translation.y += velocity.y * TIME_STEP * BASE_SPEED;
+        if movable.auto_despawn {
+            const MARGIN: f32 = 200.;
+            if translation.y > win_size.h / 2. + MARGIN
+                || translation.y < -win_size.h / 2. - MARGIN
+                || translation.x > win_size.w / 2. + MARGIN
+                || translation.x < -win_size.w / 2. - MARGIN
+            {
+                commands.entity(entity).despawn();
+            }
+        }
+    }
 }
