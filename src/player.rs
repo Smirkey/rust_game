@@ -1,6 +1,6 @@
 use crate::{
-    components::{AngularVelocity, Movable, Player, Velocity},
-    GameTextures, WinSize, BASE_SPEED, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP,
+    components::{AngularVelocity, Movable, Player, Velocity, ThrustEngine},
+    GameTextures, WinSize, BASE_SPEED, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP, PLAYER_SPRITE_SCALE,
 };
 use ::bevy::prelude::*;
 use bevy::{ecs::system::Command, transform};
@@ -18,6 +18,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system_to_stage(StartupStage::PostStartup, player_spawn_system)
             .add_system(player_keyboard_event_system)
+            .add_system(thrust_system)
             .add_system(player_fire_system);
     }
 }
@@ -44,7 +45,7 @@ fn player_spawn_system(
             },
             DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0)),
             Transform {
-                translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE, 10.),
+                translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * PLAYER_SPRITE_SCALE, 10.),
                 scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
                 ..Default::default()
             },
@@ -55,18 +56,28 @@ fn player_spawn_system(
             auto_despawn: false,
             steerable: true,
         })
-        .insert(AngularVelocity { angle: 180. });
+        .insert(AngularVelocity { angle: 0. })
+        .insert(ThrustEngine { on: false, force: 0.001 });
 }
 
 fn player_keyboard_event_system(
     keyboard: Res<Input<KeyCode>>,
-    mut query: Query<&mut Velocity, With<Player>>,
+    mut query: Query<(&mut Velocity, &mut AngularVelocity, &mut ThrustEngine), With<Player>>,
 ) {
-    if let Ok(mut velocity) = query.get_single_mut() {
-        velocity.x = if keyboard.pressed(KeyCode::Left) {
-            -1.
+    if let Ok((mut velocity, mut angular_velocity, mut thrust_engine )) = query.get_single_mut() {
+        if keyboard.pressed(KeyCode::Up) {
+            thrust_engine.on = true;
+            if thrust_engine.force <= 0.005 {
+                thrust_engine.force += 0.0001;
+            }
+        } else {
+            thrust_engine.on = false;
+            thrust_engine.force = 0.001;
+        };
+        angular_velocity.angle = if keyboard.pressed(KeyCode::Left) {
+            0.1
         } else if keyboard.pressed(KeyCode::Right) {
-            1.
+            -0.1
         } else {
             0.
         };
@@ -105,6 +116,17 @@ fn player_fire_system(
 
             spawn_lasers(x_offset);
             spawn_lasers(-x_offset);
+        }
+    }
+}
+
+
+fn thrust_system(mut query: Query<(&mut Velocity, &Transform, &ThrustEngine), With<Player>>) {
+    if let Ok((mut velocity, transform, thrust_engine)) = query.get_single_mut(){
+        if thrust_engine.on {
+            let dir = transform.rotation * Vec3::X;
+            velocity.x += dir.x * thrust_engine.force;
+            velocity.y += dir.y * thrust_engine.force;
         }
     }
 }

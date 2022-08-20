@@ -16,8 +16,10 @@ mod player;
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SIZE: (f32, f32) = (144., 75.);
+const PLAYER_SPRITE_SCALE: f32 = 1.;
 
 const SPRITE_SCALE: f32 = 0.5;
+
 
 const PLAYER_LASER_SPRITE: &str = "laser_a_01.png";
 const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
@@ -99,6 +101,16 @@ fn movable_system(
                 || translation.x < -win_size.w / 2. - MARGIN
             {
                 commands.entity(entity).despawn();
+            }
+        } else {
+            if translation.y > win_size.h / 2. {
+                translation.y = -win_size.h / 2.;
+            } else if translation.y < -win_size.h / 2. {
+                translation.y = -win_size.h / 2.;
+            } else if translation.x > win_size.w {
+                translation.x =  -win_size.w / 2.;
+            } else if translation.x < -win_size.w / 2. {
+                translation.x = win_size.w / 2.;
             }
         }
         if movable.steerable {
