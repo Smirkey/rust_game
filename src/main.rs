@@ -1,5 +1,11 @@
 #![allow(unused)]
 
+mod components;
+mod player;
+mod game;
+mod checksum;
+mod menu;
+
 use ::bevy::prelude::*;
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -11,8 +17,14 @@ use bevy_prototype_lyon::{
 };
 use components::{AngularVelocity, Movable, Velocity};
 use player::PlayerPlugin;
-mod components;
-mod player;
+use ggrs::Config;
+use bevy_asset_loader::{AssetCollection, AssetLoader};
+// use game::{
+//     apply_inputs, check_win, increase_frame_count, move_players, print_p2p_events, setup_round,
+//     spawn_players, update_velocity, FrameCount, Velocity,
+// };
+
+
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SCALE: f32 = 1.2;
@@ -21,6 +33,20 @@ const LASER_SIZE: (f32, f32) = (9., 54.);
 const LASER_SCALE: f32 = 0.5;
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
+const NUM_PLAYERS: usize = 2;
+const FPS: usize = 60;
+const ROLLBACK_SYSTEMS: &str = "rollback_systems";
+const CHECKSUM_UPDATE: &str = "checksum_update";
+const MAX_PREDICTION: usize = 12;
+const INPUT_DELAY: usize = 2;
+const CHECK_DISTANCE: usize = 2;
+
+const DISABLED_BUTTON: Color = Color::rgb(0.8, 0.5, 0.5);
+const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+
 
 pub struct WinSize {
     pub w: f32,
@@ -32,9 +58,40 @@ struct GameTextures {
     player_laser: Handle<Image>,
 }
 
+#[derive(AssetCollection)]
+pub struct ImageAssets {
+    #[asset(path = "images/skull.png")]
+    pub ggrs_logo: Handle<Image>,
+}
+
+#[derive(AssetCollection)]
+pub struct FontAssets {
+    #[asset(path = "fonts/FiraSans-Bold.ttf")]
+    pub default_font: Handle<Font>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AppState {
+    AssetLoading,
+    MenuMain,
+    MenuOnline,
+    MenuConnect,
+    RoundLocal,
+    RoundOnline,
+    Win,
+}
+
+#[derive(Debug)]
+pub struct GGRSConfig;
+impl Config for GGRSConfig {
+    type Input = game::Input;
+    type State = u8;
+    type Address = String;
+}
+
 fn main() {
     let mut app = App::new();
-    
+
     app
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
         .insert_resource(WindowDescriptor {
