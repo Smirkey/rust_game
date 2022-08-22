@@ -1,6 +1,6 @@
 use crate::{
     components::{AngularVelocity, Movable, Player, Velocity, ThrustEngine},
-    GameTextures, WinSize, BASE_SPEED, PLAYER_SIZE, SPRITE_SCALE, TIME_STEP, PLAYER_SPRITE_SCALE,
+    GameTextures, WinSize, BASE_SPEED, LASER_SCALE, TIME_STEP, PLAYER_SCALE,
 };
 use ::bevy::prelude::*;
 use bevy::{ecs::system::Command, transform, math::Vec2Swizzles};
@@ -45,8 +45,8 @@ fn player_spawn_system(
             },
             DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0)),
             Transform {
-                translation: Vec3::new(0., bottom + PLAYER_SIZE.1 / 2. * PLAYER_SPRITE_SCALE, 10.),
-                scale: Vec3::new(PLAYER_SPRITE_SCALE, PLAYER_SPRITE_SCALE, 1.),
+                translation: Vec3::new(0., bottom, 10.),
+                scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
                 ..Default::default()
             },
         ))
@@ -75,10 +75,13 @@ fn player_keyboard_event_system(
             thrust_engine.force = 0.001;
         };
         if keyboard.pressed(KeyCode::Down) {
-            if velocity.x < 0. { velocity.x += 0.01 };
-            if velocity.x > 0. { velocity.x -= 0.01 };
-            if velocity.y < 0. { velocity.y += 0.01 };
-            if velocity.y > 0. { velocity.y -= 0.01 };
+            if velocity.x.abs() > velocity.y.abs() {
+                if velocity.x < 0. { velocity.x += 0.01 };
+                if velocity.x > 0. { velocity.x -= 0.01 };
+            } else {
+                if velocity.y < 0. { velocity.y += 0.01 };
+                if velocity.y > 0. { velocity.y -= 0.01 };
+            }
         };
         angular_velocity.angle = if keyboard.pressed(KeyCode::Left) {
             0.1
@@ -99,34 +102,25 @@ fn player_fire_system(
 ) {
     if let Ok(player_tf) = query.get_single() {
         if keyboard.just_pressed(KeyCode::Space) {
-            let (x, y) = (player_tf.translation.x, player_tf.translation.y);
-            let x_offset = 8.;
+            let (x, y) = (player_tf.translation.x, player_tf.translation.y);            
             let dir = player_tf.rotation * Vec3::X;
-            let xf_rot2d = Quat::from_rotation_z((30.0_f32).to_radians());
-
-
-            let mut spawn_lasers = |x_offset: f32| {
-                commands
-                    .spawn_bundle(SpriteBundle {
-                        texture: game_textures.player_laser.clone(),
-                        transform: Transform {
-                            translation: Vec3::new(x + x_offset, y + 4., 0.),
-                            rotation: player_tf.rotation.mul_quat(Quat::from_rotation_z((-90.0_f32).to_radians())),
-                            scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
-                            ..Default::default()
-                        },
+            commands
+                .spawn_bundle(SpriteBundle {
+                    texture: game_textures.player_laser.clone(),
+                    transform: Transform {
+                        translation: Vec3::new(x, y, 0.),
+                        rotation: player_tf.rotation.mul_quat(Quat::from_rotation_z((-90.0_f32).to_radians())),
+                        scale: Vec3::new(LASER_SCALE, LASER_SCALE, 1.),
                         ..Default::default()
-                    })
-                    .insert(Movable {
-                        auto_despawn: true,
-                        steerable: true,
-                    })
-                    .insert(Velocity { x: dir.x, y: dir.y })
-                    .insert(AngularVelocity { angle: 0. });
-            };
-
-            spawn_lasers(x_offset);
-            spawn_lasers(-x_offset);
+                    },
+                    ..Default::default()
+                })
+                .insert(Movable {
+                    auto_despawn: true,
+                    steerable: true,
+                })
+                .insert(Velocity { x: dir.x, y: dir.y })
+                .insert(AngularVelocity { angle: 0. });
         }
     }
 }
