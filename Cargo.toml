@@ -9,6 +9,8 @@ edition = "2021"
 bevy = "0.7"
 bevy_prototype_lyon = "0.5.0"
 rand = "0.8"
+ggrs = "0.9"
+
 
 [workspace]
 resolver = "2"
