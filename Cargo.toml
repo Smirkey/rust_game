@@ -10,7 +10,10 @@ bevy = "0.7"
 bevy_prototype_lyon = "0.5.0"
 rand = "0.8"
 ggrs = "0.9"
-
+structopt = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+bytemuck = {version = "1.7", features = ["derive"]}
+instant = "0.1"
 
 [workspace]
 resolver = "2"

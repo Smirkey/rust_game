@@ -117,7 +117,7 @@ fn player_fire_system(
                 })
                 .insert(Movable {
                     auto_despawn: true,
-                    steerable: true,
+                    steerable: false,
                 })
                 .insert(Velocity { x: dir.x, y: dir.y })
                 .insert(AngularVelocity { angle: 0. });

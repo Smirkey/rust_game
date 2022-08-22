@@ -9,22 +9,26 @@ use bevy_prototype_lyon::{
     },
     shapes::Polygon,
 };
-use components::{AngularVelocity, Movable, Velocity};
+use components::{AngularVelocity, Movable, Velocity, GGRSConfig};
+use ggrs::{GGRSError, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use player::PlayerPlugin;
+use std::net::SocketAddr;
+use structopt::StructOpt;
+use instant::{Duration, Instant};
+
+
+
 mod components;
 mod player;
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SCALE: f32 = 1.2;
-
-
-
 const LASER_SPRITE: &str = "laser_a_01.png";
 const LASER_SIZE: (f32, f32) = (9., 54.);
 const LASER_SCALE: f32 = 0.5;
-
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
+const FPS: f64 = 60.0;
 
 pub struct WinSize {
     pub w: f32,
@@ -36,8 +40,57 @@ struct GameTextures {
     player_laser: Handle<Image>,
 }
 
-fn main() {
-    App::new()
+#[derive(StructOpt)]
+struct Opt {
+    #[structopt(short, long)]
+    local_port: u16,
+    #[structopt(short, long)]
+    players: Vec<String>,
+    #[structopt(short, long)]
+    spectators: Vec<SocketAddr>,
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let opt = Opt::from_args();
+    let num_players = opt.players.len();
+    let mut app = App::new();
+    
+    let mut sess_build = SessionBuilder::<GGRSConfig>::new()
+        .with_num_players(num_players)
+        .with_fps(FPS as usize)? // (optional) set expected update frequency
+        .with_input_delay(2); // (optional) set input delay for the local player
+
+    // add players
+    for (i, player_addr) in opt.players.iter().enumerate() {
+        // local player
+        if player_addr == "localhost" {
+            sess_build = sess_build.add_player(PlayerType::Local, i)?;
+        } else {
+            // remote players
+            let remote_addr: SocketAddr = player_addr.parse()?;
+            sess_build = sess_build.add_player(PlayerType::Remote(remote_addr), i)?;
+        }
+    }
+
+    // optionally, add spectators
+    for (i, spec_addr) in opt.spectators.iter().enumerate() {
+        sess_build = sess_build.add_player(PlayerType::Spectator(*spec_addr), num_players + i)?;
+    }
+
+    // start the GGRS session
+    let socket = UdpNonBlockingSocket::bind_to_port(opt.local_port)?;
+    let mut sess = sess_build.start_p2p_session(socket)?;
+
+    // Create a new box game
+    // let mut game = Game::new(num_players); // TODO: Heavy refacto :/
+    // game.register_local_handles(sess.local_player_handles());
+
+    // time variables for tick rate
+    let mut last_update = Instant::now();
+    let mut accumulator = Duration::ZERO;
+
+    app
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
         .insert_resource(WindowDescriptor {
             title: "Rust test".to_string(),
@@ -49,8 +102,9 @@ fn main() {
         .add_plugin(ShapePlugin)
         .add_plugin(PlayerPlugin)
         .add_startup_system(setup_system)
-        .add_system(movable_system)
-        .run();
+        .add_system(movable_system);
+
+    app.run();
 }
 
 fn setup_system(
