@@ -5,6 +5,7 @@ mod player;
 mod game;
 mod checksum;
 mod menu;
+mod rollback_systems;
 
 use ::bevy::prelude::*;
 use bevy_prototype_lyon::{
@@ -16,9 +17,9 @@ use bevy_prototype_lyon::{
     shapes::Polygon,
 };
 use components::{AngularVelocity, Movable, Velocity};
-use player::PlayerPlugin;
 use ggrs::Config;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
+use rollback_systems::movable_system;
 // use game::{
 //     apply_inputs, check_win, increase_frame_count, move_players, print_p2p_events, setup_round,
 //     spawn_players, update_velocity, FrameCount, Velocity,
@@ -89,22 +90,31 @@ impl Config for GGRSConfig {
     type Address = String;
 }
 
+
+
+
 fn main() {
     let mut app = App::new();
 
-    app
-        .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
-        .insert_resource(WindowDescriptor {
-            title: "Rust test".to_string(),
-            width: 600.,
-            height: 700.,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(ShapePlugin)
-        .add_plugin(PlayerPlugin)
-        .add_startup_system(setup_system)
-        .add_system(movable_system);
+    AssetLoader::new(AppState::AssetLoading)
+        .continue_to_state(AppState::MenuMain)
+        .with_collection::<ImageAssets>()
+        .with_collection::<FontAssets>()
+        .build(&mut app);
+    
+    // app
+    //     .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
+    //     .insert_resource(WindowDescriptor {
+    //         title: "Rust test".to_string(),
+    //         width: 600.,
+    //         height: 700.,
+    //         ..Default::default()
+    //     })
+    //     .add_plugins(DefaultPlugins)
+    //     .add_plugin(ShapePlugin)
+    //     .add_plugin(PlayerPlugin)
+    //     .add_startup_system(setup_system)
+    //     .add_system(movable_system);
     
     app.run();
 }
@@ -131,40 +141,4 @@ fn setup_system(
     commands.insert_resource(game_textures);
 
     window.set_title(String::from("my rust game"));
-}
-
-fn movable_system(
-    mut commands: Commands,
-    win_size: Res<WinSize>,
-    mut query: Query<(
-        Entity,
-        &Velocity,
-        &mut Transform,
-        &Movable,
-        &AngularVelocity,
-    )>,
-) {
-    for (entity, velocity, mut transform, movable, angular_velocity) in query.iter_mut() {
-        let translation = &mut transform.translation;
-        translation.x += velocity.x * TIME_STEP * BASE_SPEED;
-        translation.y += velocity.y * TIME_STEP * BASE_SPEED;
-        if movable.auto_despawn {
-            const MARGIN: f32 = 200.;
-            if translation.y > win_size.h / 2. + MARGIN
-                || translation.y < -win_size.h / 2. - MARGIN
-                || translation.x > win_size.w / 2. + MARGIN
-                || translation.x < -win_size.w / 2. - MARGIN
-            {
-                commands.entity(entity).despawn();
-            }
-        } else {
-            if translation.y > win_size.h / 2. {translation.y = -win_size.h / 2.} 
-            else if translation.y < -win_size.h / 2. {translation.y = -win_size.h / 2.}
-            else if translation.x > win_size.w {translation.x =  -win_size.w / 2.}
-            else if translation.x < -win_size.w / 2. {translation.x = win_size.w / 2.}
-        }
-        if movable.steerable {
-            transform.rotate(Quat::from_rotation_z(angular_velocity.angle));
-        }
-    }
 }

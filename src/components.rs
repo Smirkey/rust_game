@@ -24,3 +24,12 @@ pub struct ThrustEngine {
     pub on: bool,
     pub force: f32
 }
+#[derive(Component)]
+pub struct MenuMainUI;
+
+#[derive(Component)]
+pub enum MenuMainBtn {
+    OnlineMatch,
+    LocalMatch,
+    Quit,
+}

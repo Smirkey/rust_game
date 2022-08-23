@@ -16,25 +16,11 @@ use bevy_prototype_lyon::{
     },
     shapes::Polygon,
 };
-const INPUT_UP: u8 = 0b0001;
-const INPUT_DOWN: u8 = 0b0010;
-const INPUT_LEFT: u8 = 0b0100;
-const INPUT_RIGHT: u8 = 0b1000;
-
-// const BLUE: Color = Color::rgb(0.8, 0.6, 0.2);
-// const ORANGE: Color = Color::rgb(0., 0.35, 0.8);
-// const MAGENTA: Color = Color::rgb(0.9, 0.2, 0.2);
-// const GREEN: Color = Color::rgb(0.35, 0.7, 0.35);
-// const PLAYER_COLORS: [Color; 4] = [BLUE, ORANGE, MAGENTA, GREEN];
-
-// const PLAYER_SIZE: f32 = 50.;
-// const MOV_SPEED: f32 = 0.1;
-// const ROT_SPEED: f32 = 0.05;
-// const MAX_SPEED: f32 = 7.5;
-// const FRICTION: f32 = 0.98;
-// const DRIFT: f32 = 0.95;
+pub(crate) const INPUT_UP: u8 = 0b0001;
+pub(crate) const INPUT_DOWN: u8 = 0b0010;
+pub(crate) const INPUT_LEFT: u8 = 0b0100;
+pub(crate) const INPUT_RIGHT: u8 = 0b1000;
 const ARENA_SIZE: f32 = 720.0;
-// const CUBE_SIZE: f32 = 0.2;
 
 pub struct WinSize {
     pub w: f32,
@@ -114,13 +100,6 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
     let r = ARENA_SIZE / 4.;
 
     for handle in 0..NUM_PLAYERS {
-        let rot = handle as f32 / NUM_PLAYERS as f32 * 2. * std::f32::consts::PI;
-        let x = r * rot.cos();
-        let y = r * rot.sin();
-
-        let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
-        transform.rotate(Quat::from_rotation_z(rot));
-
         commands
         .spawn_bundle(GeometryBuilder::build_as(
             &{
@@ -152,5 +131,34 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
             .insert(Checksum::default())
             .insert(Rollback::new(rip.next_id()))
             .insert(RoundEntity);
+    }
+}
+
+pub fn print_p2p_events(mut session: ResMut<P2PSession<GGRSConfig>>) {
+    for event in session.events() {
+        info!("GGRS Event: {:?}", event);
+    }
+}
+
+pub fn check_win(mut state: ResMut<State<AppState>>, mut commands: Commands) {
+    let condition = false;
+    let confirmed = false;
+
+    if condition && confirmed {
+        state.set(AppState::Win).expect("Could not change state.");
+        commands.insert_resource(MatchData {
+            result: "Orange won!".to_owned(),
+        });
+    }
+}
+
+pub fn cleanup(query: Query<Entity, With<RoundEntity>>, mut commands: Commands) {
+    commands.remove_resource::<FrameCount>();
+    commands.remove_resource::<LocalHandles>();
+    commands.remove_resource::<P2PSession<GGRSConfig>>();
+    commands.remove_resource::<SessionType>();
+
+    for e in query.iter() {
+        commands.entity(e).despawn_recursive();
     }
 }
