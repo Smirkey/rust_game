@@ -92,3 +92,45 @@ pub fn movable_system(
         }
     }
 }
+
+fn player_fire_system(
+    mut commands: Commands,
+    keyboard: Res<Input<KeyCode>>,
+    game_textures: Res<GameTextures>,
+    query: Query<&Transform, With<Player>>,
+) {
+    if let Ok(player_tf) = query.get_single() {
+        if keyboard.just_pressed(KeyCode::Space) {
+            let (x, y) = (player_tf.translation.x, player_tf.translation.y);            
+            let dir = player_tf.rotation * Vec3::X;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    texture: game_textures.player_laser.clone(),
+                    transform: Transform {
+                        translation: Vec3::new(x, y, 0.),
+                        rotation: player_tf.rotation.mul_quat(Quat::from_rotation_z((-90.0_f32).to_radians())),
+                        scale: Vec3::new(LASER_SCALE, LASER_SCALE, 1.),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert(Movable {
+                    auto_despawn: true,
+                    steerable: false,
+                })
+                .insert(Velocity { x: dir.x, y: dir.y })
+                .insert(AngularVelocity { angle: 0. });
+        }
+    }
+}
+
+
+fn thrust_system(mut query: Query<(&mut Velocity, &Transform, &ThrustEngine), With<Player>>) {
+    if let Ok((mut velocity, transform, thrust_engine)) = query.get_single_mut(){
+        if thrust_engine.on {
+            let dir = transform.rotation * Vec3::X;
+            velocity.x += dir.x * thrust_engine.force;
+            velocity.y += dir.y * thrust_engine.force;
+        }
+    }
+}
