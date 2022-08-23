@@ -9,14 +9,14 @@ pub fn increase_frame_count(mut frame_count: ResMut<FrameCount>) {
 }
 
 pub fn apply_inputs(
-    mut query: Query<(&Velocity,
+    mut query: Query<(&mut Velocity,
         &mut Transform,
         &mut ThrustEngine,
-        &AngularVelocity,
+        &mut AngularVelocity,
         &Player)>,
     inputs: Res<Vec<(Input, InputStatus)>>,
 ) {
-    for (velocity, mut transform, thrust_engine, angular_velocity, player) in query.iter_mut() {
+    for (mut velocity, mut transform, mut thrust_engine, mut angular_velocity, player) in query.iter_mut() {
         let input = match inputs[player.handle].1 {
             InputStatus::Confirmed => inputs[player.handle].0.inp,
             InputStatus::Predicted => inputs[player.handle].0.inp,

@@ -111,7 +111,7 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
                 path_builder.line_to(Vec2::ZERO);
                 let mut line = path_builder.build();
                 line.0 = line.0.transformed(&Rotation::new(Angle::degrees(-90.0)));
-                line
+                line.0
             },
             DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0)),
             Transform {
