@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ggrs::Rollback;
 
-use crate::game::{Player, Velocity};
+use crate::{game::{Player}, components::Velocity};
 
 #[derive(Default, Reflect, Hash, Component)]
 #[reflect(Hash)]
@@ -17,8 +17,8 @@ pub fn checksum_players(
         bytes.extend_from_slice(&t.translation.x.to_le_bytes());
         bytes.extend_from_slice(&t.translation.y.to_le_bytes());
         bytes.extend_from_slice(&t.translation.z.to_le_bytes());
-        bytes.extend_from_slice(&v.0.x.to_le_bytes());
-        bytes.extend_from_slice(&v.0.y.to_le_bytes());
+        bytes.extend_from_slice(&v.x.to_le_bytes());
+        bytes.extend_from_slice(&v.y.to_le_bytes());
 
         // naive checksum implementation
         checksum.value = fletcher16(&bytes);

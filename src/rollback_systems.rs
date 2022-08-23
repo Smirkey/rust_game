@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::{WinSize, FrameCount, Input, Player, INPUT_UP, INPUT_DOWN, INPUT_LEFT, INPUT_RIGHT}, TIME_STEP, BASE_SPEED, components::{AngularVelocity, Movable, ThrustEngine, Velocity}};
+use crate::{game::{FrameCount, Input, Player, INPUT_UP, INPUT_DOWN, INPUT_LEFT, INPUT_RIGHT, ARENA_SIZE}, TIME_STEP, BASE_SPEED, components::{AngularVelocity, Movable, ThrustEngine, Velocity}};
 use bevy_ggrs::{Rollback};
 use ggrs::{InputStatus};
 
@@ -16,7 +16,13 @@ pub fn apply_inputs(
         &Player)>,
     inputs: Res<Vec<(Input, InputStatus)>>,
 ) {
-    for (mut velocity, mut transform, mut thrust_engine, mut angular_velocity, player) in query.iter_mut() {
+    for (
+        mut velocity,
+        mut transform,
+        mut thrust_engine, 
+        mut angular_velocity, 
+        player
+    ) in query.iter_mut() {
         let input = match inputs[player.handle].1 {
             InputStatus::Confirmed => inputs[player.handle].0.inp,
             InputStatus::Predicted => inputs[player.handle].0.inp,
@@ -54,14 +60,13 @@ pub fn apply_inputs(
 
 pub fn movable_system(
     mut commands: Commands,
-    win_size: Res<WinSize>,
     mut query: Query<(
         Entity,
         &Velocity,
         &mut Transform,
         &Movable,
         &AngularVelocity,
-    )>
+    ), With<Rollback>>
 ) {
     for (entity, velocity, mut transform, movable, angular_velocity) in query.iter_mut() {
         let translation = &mut transform.translation;
@@ -69,18 +74,18 @@ pub fn movable_system(
         translation.y += velocity.y * TIME_STEP * BASE_SPEED;
         if movable.auto_despawn {
             const MARGIN: f32 = 200.;
-            if translation.y > win_size.h / 2. + MARGIN
-                || translation.y < -win_size.h / 2. - MARGIN
-                || translation.x > win_size.w / 2. + MARGIN
-                || translation.x < -win_size.w / 2. - MARGIN
+            if translation.y > ARENA_SIZE / 2. + MARGIN
+                || translation.y < -ARENA_SIZE / 2. - MARGIN
+                || translation.x > ARENA_SIZE / 2. + MARGIN
+                || translation.x < -ARENA_SIZE / 2. - MARGIN
             {
                 commands.entity(entity).despawn();
             }
         } else {
-            if translation.y > win_size.h / 2. {translation.y = -win_size.h / 2.} 
-            else if translation.y < -win_size.h / 2. {translation.y = -win_size.h / 2.}
-            else if translation.x > win_size.w {translation.x =  -win_size.w / 2.}
-            else if translation.x < -win_size.w / 2. {translation.x = win_size.w / 2.}
+            if translation.y > ARENA_SIZE / 2. {translation.y = -ARENA_SIZE / 2.} 
+            else if translation.y < -ARENA_SIZE / 2. {translation.y = -ARENA_SIZE / 2.}
+            else if translation.x > ARENA_SIZE {translation.x =  -ARENA_SIZE / 2.}
+            else if translation.x < -ARENA_SIZE / 2. {translation.x = ARENA_SIZE / 2.}
         }
         if movable.steerable {
             transform.rotate(Quat::from_rotation_z(angular_velocity.angle));

@@ -6,7 +6,7 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 use crate::{
     checksum::Checksum,
     menu::{connect::LocalHandles, win::MatchData},
-    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE, components::{ThrustEngine, AngularVelocity, Movable},
+    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE, components::{ThrustEngine, AngularVelocity, Movable, Velocity},
 };
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -20,12 +20,8 @@ pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_DOWN: u8 = 0b0010;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
-const ARENA_SIZE: f32 = 720.0;
+pub(crate) const ARENA_SIZE: f32 = 720.0;
 
-pub struct WinSize {
-    pub w: f32,
-    pub h: f32,
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Pod, Zeroable)]
 pub struct Input {
@@ -39,9 +35,6 @@ pub struct Player {
 
 #[derive(Component)]
 pub struct RoundEntity;
-
-#[derive(Default, Reflect, Component)]
-pub struct Velocity(pub Vec2);
 
 #[derive(Default, Reflect, Component)]
 pub struct CarControls {
@@ -69,19 +62,12 @@ pub fn input(
     Input { inp }
 }
 
-pub fn setup_round(mut commands: Commands, mut windows: ResMut<Windows>,) {
+pub fn setup_round(mut commands: Commands) {
     commands.insert_resource(FrameCount::default());
     commands
         .spawn_bundle(OrthographicCameraBundle::new_2d())
         .insert(RoundEntity);
     
-    let window = windows.get_primary_mut().unwrap();
-
-    let win_size = WinSize {
-        w: window.width(),
-        h: window.height(),
-    };
-    commands.insert_resource(win_size);
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform::from_xyz(0., 0., 0.),
@@ -96,7 +82,7 @@ pub fn setup_round(mut commands: Commands, mut windows: ResMut<Windows>,) {
 }
 
 
-pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>, win_size: Res<WinSize>,) {
+pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>) {
     let r = ARENA_SIZE / 4.;
 
     for handle in 0..NUM_PLAYERS {
@@ -115,7 +101,7 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
             },
             DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0)),
             Transform {
-                translation: Vec3::new(0., -win_size.h / 2., 10.),
+                translation: Vec3::new(0., -ARENA_SIZE / 2., 10.),
                 scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
                 ..Default::default()
             },

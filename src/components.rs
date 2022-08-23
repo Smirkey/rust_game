@@ -1,5 +1,5 @@
-use bevy::prelude::Component;
-#[derive(Component, Debug)]
+use bevy::{prelude::Component, reflect::Reflect};
+#[derive(Default, Component, Debug, Reflect)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,
