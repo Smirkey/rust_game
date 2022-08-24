@@ -6,7 +6,7 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 use crate::{
     checksum::Checksum,
     menu::{connect::LocalHandles, win::MatchData},
-    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE, components::{ThrustEngine, AngularVelocity, Movable, Velocity},
+    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE, components::{ThrustEngine, AngularVelocity, Movable, Velocity}, ImageAssets,
 };
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -20,7 +20,9 @@ pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_DOWN: u8 = 0b0010;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
+pub(crate) const INPUT_SPACE: u8 = 0b1100;
 pub(crate) const ARENA_SIZE: f32 = 720.0;
+const PLAYER_SIZE: f32 = 50.;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Pod, Zeroable)]
@@ -58,6 +60,7 @@ pub fn input(
     if keyboard_input.pressed(KeyCode::Left) {inp |= INPUT_LEFT}
     if keyboard_input.pressed(KeyCode::Down) {inp |= INPUT_DOWN}
     if keyboard_input.pressed(KeyCode::Right) {inp |= INPUT_RIGHT}
+    if keyboard_input.just_pressed(KeyCode::Space) {inp |= INPUT_SPACE}
 
     Input { inp }
 }
@@ -82,30 +85,28 @@ pub fn setup_round(mut commands: Commands) {
 }
 
 
-pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>) {
+pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>, game_textures: Res<ImageAssets>) {
     let r = ARENA_SIZE / 4.;
 
     for handle in 0..NUM_PLAYERS {
+
+        let rot = handle as f32 / NUM_PLAYERS as f32 * 2. * std::f32::consts::PI;
+        let x = r * rot.cos();
+        let y = r * rot.sin();
+
+        let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
+        transform.rotate(Quat::from_rotation_z(rot));
+
         commands
-        .spawn_bundle(GeometryBuilder::build_as(
-            &{
-                let mut path_builder = PathBuilder::new();
-                path_builder.move_to(Vec2::ZERO);
-                path_builder.line_to(Vec2::new(-8.0, -8.0));
-                path_builder.line_to(Vec2::new(0.0, 12.0));
-                path_builder.line_to(Vec2::new(8.0, -8.0));
-                path_builder.line_to(Vec2::ZERO);
-                let mut line = path_builder.build();
-                line.0 = line.0.transformed(&Rotation::new(Angle::degrees(-90.0)));
-                line.0
-            },
-            DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0)),
-            Transform {
-                translation: Vec3::new(0., -ARENA_SIZE / 2., 10.),
-                scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
+        .spawn_bundle(SpriteBundle {
+                transform,
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(PLAYER_SIZE * 0.5, PLAYER_SIZE)),
+                    ..Default::default()
+                },
+                texture: game_textures.spaceship.clone(),
                 ..Default::default()
-            },
-        ))
+            })
             .insert(Player { handle })
             .insert(Velocity::default())
             .insert(Movable {

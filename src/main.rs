@@ -1,7 +1,6 @@
 #![allow(unused)]
 
 mod components;
-mod player;
 mod game;
 mod checksum;
 mod menu;
@@ -23,7 +22,7 @@ use game::{FrameCount, setup_round, spawn_players, check_win, print_p2p_events};
 use ggrs::Config;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use menu::{online::{update_lobby_id, update_lobby_id_display, update_lobby_btn}, connect::{create_matchbox_socket, update_matchbox_socket}};
-use rollback_systems::{movable_system, apply_inputs, increase_frame_count};
+use rollback_systems::{movable_system, apply_inputs, increase_frame_count, player_fire_system};
 
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
@@ -47,15 +46,14 @@ const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
 
-struct GameTextures {
-    player: Handle<Image>,
-    player_laser: Handle<Image>,
-}
-
 #[derive(AssetCollection)]
 pub struct ImageAssets {
     #[asset(path = "images/skull.png")]
     pub ggrs_logo: Handle<Image>,
+    #[asset(path = "images/laser_a_01.png")]
+    pub laser: Handle<Image>,
+    #[asset(path = "images/spaceship.png")]
+    pub spaceship: Handle<Image>
 }
 
 #[derive(AssetCollection)]
@@ -110,6 +108,7 @@ fn main() {
                     ROLLBACK_SYSTEMS,
                     SystemStage::parallel()
                         .with_system(apply_inputs.label(SystemLabel::Input))
+                        .with_system(player_fire_system.after(SystemLabel::Input))
                         .with_system(
                             movable_system
                                 .label(SystemLabel::Velocity)
