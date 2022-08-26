@@ -1,12 +1,12 @@
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
-use bytemuck::{Pod, Zeroable};
 use ggrs::{InputStatus, P2PSession, PlayerHandle};
 
 use crate::{
     checksum::Checksum,
     menu::{connect::LocalHandles, win::MatchData},
-    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE, components::{ThrustEngine, AngularVelocity, Movable, Velocity}, ImageAssets,
+    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE,
+    components::{ThrustEngine, AngularVelocity, Movable, Velocity, FrameCount, RoundEntity, Player, Input, PlayerEntity}, ImageAssets,
 };
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -17,38 +17,12 @@ use bevy_prototype_lyon::{
     shapes::Polygon,
 };
 pub(crate) const INPUT_UP: u8 = 0b0001;
-pub(crate) const INPUT_DOWN: u8 = 0b0010;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
-pub(crate) const INPUT_SPACE: u8 = 0b1100;
+pub(crate) const INPUT_SPACE: u8 = 0b0010;
+pub (crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 720.0;
 const PLAYER_SIZE: f32 = 50.;
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Pod, Zeroable)]
-pub struct Input {
-    pub inp: u8,
-}
-
-#[derive(Default, Component)]
-pub struct Player {
-    pub handle: usize,
-}
-
-#[derive(Component)]
-pub struct RoundEntity;
-
-#[derive(Default, Reflect, Component)]
-pub struct CarControls {
-    accel: f32,
-    steer: f32,
-}
-
-#[derive(Default, Reflect, Hash, Component)]
-#[reflect(Hash)]
-pub struct FrameCount {
-    pub frame: u32,
-}
 
 pub fn input(
     handle: In<PlayerHandle>,
@@ -58,7 +32,6 @@ pub fn input(
     let mut inp: u8 = 0;
     if keyboard_input.pressed(KeyCode::Up) {inp |= INPUT_UP}
     if keyboard_input.pressed(KeyCode::Left) {inp |= INPUT_LEFT}
-    if keyboard_input.pressed(KeyCode::Down) {inp |= INPUT_DOWN}
     if keyboard_input.pressed(KeyCode::Right) {inp |= INPUT_RIGHT}
     if keyboard_input.just_pressed(KeyCode::Space) {inp |= INPUT_SPACE}
 
@@ -90,16 +63,9 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
 
     for handle in 0..NUM_PLAYERS {
 
-        let rot = handle as f32 / NUM_PLAYERS as f32 * 2. * std::f32::consts::PI;
-        let x = r * rot.cos();
-        let y = r * rot.sin();
-
-        let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
-        transform.rotate(Quat::from_rotation_z(rot));
-
         commands
         .spawn_bundle(SpriteBundle {
-                transform,
+                transform: Transform { translation: Vec3::new(0., 0., 10.), ..Default::default()},
                 sprite: Sprite {
                     custom_size: Some(Vec2::new(PLAYER_SIZE * 0.5, PLAYER_SIZE)),
                     ..Default::default()
@@ -117,6 +83,7 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
             .insert(ThrustEngine { on: false, force: 0.001 })
             .insert(Checksum::default())
             .insert(Rollback::new(rip.next_id()))
+            .insert(PlayerEntity)
             .insert(RoundEntity);
     }
 }

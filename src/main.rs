@@ -17,8 +17,8 @@ use bevy_prototype_lyon::{
     shapes::Polygon,
 };
 use checksum::{Checksum, checksum_players};
-use components::{AngularVelocity, Movable, Velocity};
-use game::{FrameCount, setup_round, spawn_players, check_win, print_p2p_events};
+use components::{AngularVelocity, Movable, Velocity, FrameCount};
+use game::{setup_round, spawn_players, check_win, print_p2p_events};
 use ggrs::Config;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use menu::{online::{update_lobby_id, update_lobby_id_display, update_lobby_btn}, connect::{create_matchbox_socket, update_matchbox_socket}};
@@ -32,7 +32,7 @@ const LASER_SIZE: (f32, f32) = (9., 54.);
 const LASER_SCALE: f32 = 0.5;
 const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
-const NUM_PLAYERS: usize = 2;
+const NUM_PLAYERS: usize = 1;
 const FPS: usize = 60;
 const ROLLBACK_SYSTEMS: &str = "rollback_systems";
 const CHECKSUM_UPDATE: &str = "checksum_update";
@@ -76,13 +76,14 @@ pub enum AppState {
 #[derive(SystemLabel, Debug, Clone, Hash, Eq, PartialEq)]
 enum SystemLabel {
     Input,
+    ShootInput,
     Velocity,
 }
 
 #[derive(Debug)]
 pub struct GGRSConfig;
 impl Config for GGRSConfig {
-    type Input = game::Input;
+    type Input = components::Input;
     type State = u8;
     type Address = String;
 }
@@ -108,10 +109,14 @@ fn main() {
                     ROLLBACK_SYSTEMS,
                     SystemStage::parallel()
                         .with_system(apply_inputs.label(SystemLabel::Input))
-                        .with_system(player_fire_system.after(SystemLabel::Input))
+                        .with_system(
+                            player_fire_system
+                                .label(SystemLabel::ShootInput)
+                                .after(SystemLabel::Input))
                         .with_system(
                             movable_system
                                 .label(SystemLabel::Velocity)
+                                .after(SystemLabel::ShootInput)
                                 .after(SystemLabel::Input),
                         )
                         .with_system(increase_frame_count),

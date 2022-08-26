@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ggrs::Rollback;
 
-use crate::{game::{Player}, components::Velocity};
+use crate::{components::{Player}, components::Velocity};
 
 #[derive(Default, Reflect, Hash, Component)]
 #[reflect(Hash)]
