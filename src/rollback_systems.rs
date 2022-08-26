@@ -39,7 +39,6 @@ pub fn apply_inputs(
 
         if input & INPUT_UP != 0 {
             let dir = transform.rotation * Vec3::X;
-            println!("dirx {} diry {}", dir.x, dir.y);
             velocity.x += dir.x * thrust_engine.force;
             velocity.y += dir.y * thrust_engine.force;
         } else {
@@ -71,7 +70,7 @@ pub fn movable_system(
         translation.y += velocity.y * TIME_STEP * BASE_SPEED;
 
         if movable.auto_despawn {
-            const MARGIN: f32 = 200.;
+            const MARGIN: f32 = 100.;
             if translation.y > ARENA_SIZE / 2. + MARGIN
                 || translation.y < -ARENA_SIZE / 2. - MARGIN
                 || translation.x > ARENA_SIZE / 2. + MARGIN

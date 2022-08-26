@@ -62,14 +62,14 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
     let r = ARENA_SIZE / 4.;
 
     for handle in 0..NUM_PLAYERS {
+        let rot = handle as f32 / NUM_PLAYERS as f32 * 2. * std::f32::consts::PI;
+        let x = r * rot.cos();
+        let y = r * rot.sin();
 
+        let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
         commands
         .spawn_bundle(SpriteBundle {
-                transform: Transform { translation: Vec3::new(0., 0., 10.), ..Default::default()},
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(PLAYER_SIZE * 0.5, PLAYER_SIZE)),
-                    ..Default::default()
-                },
+                transform,
                 texture: game_textures.spaceship.clone(),
                 ..Default::default()
             })
