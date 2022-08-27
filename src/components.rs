@@ -1,6 +1,5 @@
 use bevy::{prelude::Component, reflect::Reflect};
 use bytemuck::{Pod, Zeroable};
-
 #[derive(Default, Component, Debug, Reflect)]
 pub struct Velocity {
     pub x: f32,

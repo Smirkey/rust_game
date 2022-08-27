@@ -6,7 +6,8 @@ use crate::{
     checksum::Checksum,
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE,
-    components::{ThrustEngine, AngularVelocity, Movable, Velocity, FrameCount, RoundEntity, Player, Input, PlayerEntity}, ImageAssets,
+    components::{ThrustEngine, AngularVelocity, Movable, Velocity, FrameCount, RoundEntity, Player, Input, PlayerEntity}, 
+    ImageAssets,
 };
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -16,6 +17,7 @@ use bevy_prototype_lyon::{
     },
     shapes::Polygon,
 };
+
 pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
