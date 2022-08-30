@@ -1,3 +1,8 @@
+use bevy::{
+    math::Vec3,
+    prelude::OrthographicCameraBundle,
+    render::camera::{DepthCalculation, OrthographicProjection, ScalingMode},
+};
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
 use ggrs::{InputStatus, P2PSession, PlayerHandle};
@@ -5,8 +10,8 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 use crate::{
     checksum::Checksum,
     components::{
-        AngularVelocity, FrameCount, Input, Movable, Player, PlayerEntity, RoundEntity,
-        ThrustEngine, Velocity,
+        Ally, AngularVelocity, Ennemy, FrameCount, Input, Movable, Player, PlayerEntity,
+        PlayerType, RoundEntity, ThrustEngine, Velocity,
     },
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_PLAYERS, PLAYER_SCALE,
@@ -18,6 +23,8 @@ pub(crate) const INPUT_RIGHT: u8 = 0b1000;
 pub(crate) const INPUT_SPACE: u8 = 0b0010;
 pub(crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 720.0;
+const NUM_ALLIES: usize = 1;
+const NUM_ENNEMIES: usize = 2;
 const PLAYER_SIZE: f32 = 50.;
 
 pub fn input(
@@ -68,33 +75,67 @@ pub fn spawn_players(
 ) {
     let r = ARENA_SIZE / 4.;
 
-    for handle in 0..NUM_PLAYERS {
+    let mut spawn_player =
+        |mut commands: Commands, transform: Transform, player_type: PlayerType, handle: usize| {
+            commands
+                .spawn_bundle(SpriteBundle {
+                    transform,
+                    texture: game_textures.spaceship.clone(),
+                    ..Default::default()
+                })
+                .insert(Player { handle })
+                .insert(Velocity::default())
+                .insert(Movable {
+                    auto_despawn: false,
+                    steerable: true,
+                })
+                .insert(AngularVelocity { angle: 0. })
+                .insert(ThrustEngine {
+                    on: false,
+                    force: 0.001,
+                })
+                .insert(Checksum::default())
+                .insert(Rollback::new(rip.next_id()))
+                .insert(PlayerEntity)
+                .insert(RoundEntity)
+                .insert(player_type);
+        };
+
+    let get_spawn_location = |handle: usize| -> Transform {
         let rot = handle as f32 / NUM_PLAYERS as f32 * 2. * std::f32::consts::PI;
         let x = r * rot.cos();
         let y = r * rot.sin();
 
         let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
-        commands
-            .spawn_bundle(SpriteBundle {
-                transform,
-                texture: game_textures.spaceship.clone(),
-                ..Default::default()
-            })
-            .insert(Player { handle })
-            .insert(Velocity::default())
-            .insert(Movable {
-                auto_despawn: false,
-                steerable: true,
-            })
-            .insert(AngularVelocity { angle: 0. })
-            .insert(ThrustEngine {
-                on: false,
-                force: 0.001,
-            })
-            .insert(Checksum::default())
-            .insert(Rollback::new(rip.next_id()))
-            .insert(PlayerEntity)
-            .insert(RoundEntity);
+        transform
+    };
+
+    let mut handle: usize = 0;
+
+    spawn_player(
+        commands,
+        get_spawn_location(handle),
+        PlayerType::Ego,
+        handle,
+    );
+    handle += 1;
+    for _ in 0..NUM_ALLIES {
+        spawn_player(
+            commands,
+            get_spawn_location(handle),
+            PlayerType::Ally,
+            handle,
+        );
+        handle += 1;
+    }
+    for _ in 0..NUM_ENNEMIES {
+        spawn_player(
+            commands,
+            get_spawn_location(handle),
+            PlayerType::Ennemy,
+            handle,
+        );
+        handle += 1;
     }
 }
 

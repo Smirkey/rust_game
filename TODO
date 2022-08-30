@@ -1,0 +1,36 @@
+Adapt the menu to the following game modes:
+    main:
+        local:
+            implement following settings:
+                - num allies
+                - num enemies
+                - map size ?
+        online:
+            Private games:
+                Make it work
+            Online games:
+                add the notion of gamemode:
+                    - 2v2
+                    - 3v3
+                    etc..
+    miscelaneous:
+        - Add pseudonym
+        - try to get hyperlinks working
+
+
+
+
+Game:
+    step 1:
+        - Add colisions with laser
+        - Add teams system
+        - First person camera
+        - Bigger map
+        - Spawning point predefined for each team
+    step 2:
+        - obstacles ?
+        - Different ship / different abilities ?
+        - Life / Life bar
+        - minimap
+
+Networking:
