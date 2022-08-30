@@ -1,9 +1,6 @@
 use bevy::{prelude::Component, reflect::Reflect};
 use bytemuck::{Pod, Zeroable};
-<<<<<<< HEAD
-=======
 
->>>>>>> main
 #[derive(Default, Component, Debug, Reflect)]
 pub struct Velocity {
     pub x: f32,
@@ -27,7 +24,7 @@ pub struct AngularVelocity {
 #[derive(Debug, Component)]
 pub struct ThrustEngine {
     pub on: bool,
-    pub force: f32
+    pub force: f32,
 }
 #[derive(Component)]
 pub struct MenuMainUI;

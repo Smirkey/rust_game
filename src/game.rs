@@ -4,14 +4,12 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 
 use crate::{
     checksum::Checksum,
+    components::{
+        AngularVelocity, FrameCount, Input, Movable, Player, PlayerEntity, RoundEntity,
+        ThrustEngine, Velocity,
+    },
     menu::{connect::LocalHandles, win::MatchData},
-    AppState, GGRSConfig, NUM_PLAYERS, PLAYER_SCALE,
-<<<<<<< HEAD
-    components::{ThrustEngine, AngularVelocity, Movable, Velocity, FrameCount, RoundEntity, Player, Input, PlayerEntity}, 
-    ImageAssets,
-=======
-    components::{ThrustEngine, AngularVelocity, Movable, Velocity, FrameCount, RoundEntity, Player, Input, PlayerEntity}, ImageAssets,
->>>>>>> main
+    AppState, GGRSConfig, ImageAssets, NUM_PLAYERS, PLAYER_SCALE,
 };
 use bevy_prototype_lyon::{
     entity::ShapeBundle,
@@ -21,15 +19,12 @@ use bevy_prototype_lyon::{
     },
     shapes::Polygon,
 };
-<<<<<<< HEAD
 
-=======
->>>>>>> main
 pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
 pub(crate) const INPUT_SPACE: u8 = 0b0010;
-pub (crate) const LASER_SPEED: f32 = 50.;
+pub(crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 720.0;
 const PLAYER_SIZE: f32 = 50.;
 
@@ -39,10 +34,18 @@ pub fn input(
     local_handles: Res<LocalHandles>,
 ) -> Input {
     let mut inp: u8 = 0;
-    if keyboard_input.pressed(KeyCode::Up) {inp |= INPUT_UP}
-    if keyboard_input.pressed(KeyCode::Left) {inp |= INPUT_LEFT}
-    if keyboard_input.pressed(KeyCode::Right) {inp |= INPUT_RIGHT}
-    if keyboard_input.just_pressed(KeyCode::Space) {inp |= INPUT_SPACE}
+    if keyboard_input.pressed(KeyCode::Up) {
+        inp |= INPUT_UP
+    }
+    if keyboard_input.pressed(KeyCode::Left) {
+        inp |= INPUT_LEFT
+    }
+    if keyboard_input.pressed(KeyCode::Right) {
+        inp |= INPUT_RIGHT
+    }
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        inp |= INPUT_SPACE
+    }
 
     Input { inp }
 }
@@ -52,7 +55,7 @@ pub fn setup_round(mut commands: Commands) {
     commands
         .spawn_bundle(OrthographicCameraBundle::new_2d())
         .insert(RoundEntity);
-    
+
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform::from_xyz(0., 0., 0.),
@@ -66,8 +69,11 @@ pub fn setup_round(mut commands: Commands) {
         .insert(RoundEntity);
 }
 
-
-pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>, game_textures: Res<ImageAssets>) {
+pub fn spawn_players(
+    mut commands: Commands,
+    mut rip: ResMut<RollbackIdProvider>,
+    game_textures: Res<ImageAssets>,
+) {
     let r = ARENA_SIZE / 4.;
 
     for handle in 0..NUM_PLAYERS {
@@ -77,7 +83,7 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
 
         let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
         commands
-        .spawn_bundle(SpriteBundle {
+            .spawn_bundle(SpriteBundle {
                 transform,
                 texture: game_textures.spaceship.clone(),
                 ..Default::default()
@@ -89,7 +95,10 @@ pub fn spawn_players(mut commands: Commands, mut rip: ResMut<RollbackIdProvider>
                 steerable: true,
             })
             .insert(AngularVelocity { angle: 0. })
-            .insert(ThrustEngine { on: false, force: 0.001 })
+            .insert(ThrustEngine {
+                on: false,
+                force: 0.001,
+            })
             .insert(Checksum::default())
             .insert(Rollback::new(rip.next_id()))
             .insert(PlayerEntity)
