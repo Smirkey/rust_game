@@ -65,13 +65,6 @@ pub struct FrameCount {
 }
 
 #[derive(Component)]
-pub struct Ego;
-#[derive(Component)]
-pub struct Ennemy;
-#[derive(Component)]
-pub struct Ally;
-
-#[derive(Component)]
 pub enum PlayerType {
     Ego,
     Ennemy,
