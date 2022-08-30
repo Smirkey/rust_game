@@ -1,29 +1,23 @@
 #![allow(unused)]
 
+mod checksum;
 mod components;
 mod game;
-mod checksum;
 mod menu;
 mod rollback_systems;
 
 use ::bevy::prelude::*;
-use bevy_ggrs::GGRSPlugin;
-use bevy_prototype_lyon::{
-    entity::ShapeBundle,
-    prelude::{
-        tess::{geom::Rotation, math::Angle},
-        *,
-    },
-    shapes::Polygon,
-};
-use checksum::{Checksum, checksum_players};
-use components::{AngularVelocity, Movable, Velocity, FrameCount};
-use game::{setup_round, spawn_players, check_win, print_p2p_events};
-use ggrs::Config;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
-use menu::{online::{update_lobby_id, update_lobby_id_display, update_lobby_btn}, connect::{create_matchbox_socket, update_matchbox_socket}};
-use rollback_systems::{movable_system, apply_inputs, increase_frame_count, player_fire_system};
-
+use bevy_ggrs::GGRSPlugin;
+use checksum::{checksum_players, Checksum};
+use components::{AngularVelocity, FrameCount, Movable, Velocity};
+use game::{check_win, print_p2p_events, setup_round, spawn_players};
+use ggrs::Config;
+use menu::{
+    connect::{create_matchbox_socket, update_matchbox_socket},
+    online::{update_lobby_btn, update_lobby_id, update_lobby_id_display},
+};
+use rollback_systems::{apply_inputs, increase_frame_count, movable_system, player_fire_system};
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SCALE: f32 = 1.2;
@@ -53,7 +47,7 @@ pub struct ImageAssets {
     #[asset(path = "images/laser_a_01.png")]
     pub laser: Handle<Image>,
     #[asset(path = "images/spaceship.png")]
-    pub spaceship: Handle<Image>
+    pub spaceship: Handle<Image>,
 }
 
 #[derive(AssetCollection)]
@@ -112,7 +106,8 @@ fn main() {
                         .with_system(
                             player_fire_system
                                 .label(SystemLabel::ShootInput)
-                                .after(SystemLabel::Input))
+                                .after(SystemLabel::Input),
+                        )
                         .with_system(
                             movable_system
                                 .label(SystemLabel::Velocity)
@@ -204,6 +199,6 @@ fn main() {
     {
         app.add_system(bevy_web_resizer::web_resize_system);
     }
-    
+
     app.run();
 }

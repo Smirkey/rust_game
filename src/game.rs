@@ -11,14 +11,6 @@ use crate::{
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_PLAYERS, PLAYER_SCALE,
 };
-use bevy_prototype_lyon::{
-    entity::ShapeBundle,
-    prelude::{
-        tess::{geom::Rotation, math::Angle},
-        *,
-    },
-    shapes::Polygon,
-};
 
 pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
