@@ -74,10 +74,17 @@ pub fn spawn_players(
     let r = ARENA_SIZE / 4.;
 
     let mut spawn_player = |transform: &Transform, player_type: PlayerType, handle: &usize| {
+        let texture: Handle<Image>;
+        if player_type == PlayerType::Ennemy {
+            texture = game_textures.ennemy.clone();
+        } else {
+            texture = game_textures.ally.clone();
+        }
+
         commands
             .spawn_bundle(SpriteBundle {
                 transform: *transform,
-                texture: game_textures.spaceship.clone(),
+                texture: texture,
                 ..Default::default()
             })
             .insert(Player { handle: *handle })

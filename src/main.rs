@@ -17,7 +17,9 @@ use menu::{
     connect::{create_matchbox_socket, update_matchbox_socket},
     online::{update_lobby_btn, update_lobby_id, update_lobby_id_display},
 };
-use rollback_systems::{apply_inputs, increase_frame_count, movable_system, player_fire_system};
+use rollback_systems::{
+    apply_inputs, camera_system, increase_frame_count, movable_system, player_fire_system,
+};
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
 const PLAYER_SCALE: f32 = 1.2;
@@ -47,9 +49,13 @@ pub struct ImageAssets {
     #[asset(path = "images/skull.png")]
     pub ggrs_logo: Handle<Image>,
     #[asset(path = "images/laser_a_01.png")]
-    pub laser: Handle<Image>,
-    #[asset(path = "images/spaceship.png")]
-    pub spaceship: Handle<Image>,
+    pub ally_laser: Handle<Image>,
+    #[asset(path = "images/laser_b_01.png")]
+    pub ennemy_laser: Handle<Image>,
+    #[asset(path = "images/ally.png")]
+    pub ally: Handle<Image>,
+    #[asset(path = "images/ennemy.png")]
+    pub ennemy: Handle<Image>,
 }
 
 #[derive(AssetCollection)]
@@ -116,6 +122,7 @@ fn main() {
                                 .after(SystemLabel::ShootInput)
                                 .after(SystemLabel::Input),
                         )
+                        .with_system(camera_system)
                         .with_system(increase_frame_count),
                 )
                 .with_stage_after(

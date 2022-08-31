@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{AngularVelocity, LaserEntity, Movable, PlayerEntity, ThrustEngine, Velocity},
+    components::{
+        AngularVelocity, LaserEntity, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity,
+    },
     components::{FrameCount, Input, Player, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
@@ -67,6 +69,19 @@ pub fn apply_inputs(
     }
 }
 
+pub fn camera_system(
+    mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerEntity>)>,
+    mut player: Query<(&mut Transform, &mut PlayerType), (With<PlayerEntity>, Without<Camera>)>,
+) {
+    for mut transform in camera.iter_mut() {
+        for (player_tf, player_type) in player.iter() {
+            if player_type == &PlayerType::Ego {
+                transform.translation = player_tf.translation;
+            }
+        }
+    }
+}
+
 pub fn movable_system(
     mut commands: Commands,
     mut query: Query<
@@ -115,20 +130,26 @@ pub fn player_fire_system(
     mut commands: Commands,
     inputs: Res<Vec<(Input, InputStatus)>>,
     game_textures: Res<ImageAssets>,
-    mut query: Query<(&Transform, &Player, &Velocity), With<Rollback>>,
+    mut query: Query<(&Transform, &Player, &Velocity, &PlayerType), With<Rollback>>,
     mut rip: ResMut<RollbackIdProvider>,
 ) {
-    for (player_tf, player, player_velocity) in query.iter_mut() {
+    for (player_tf, player, player_velocity, player_type) in query.iter_mut() {
         let input = match inputs[player.handle].1 {
             InputStatus::Confirmed => inputs[player.handle].0.inp,
             InputStatus::Predicted => inputs[player.handle].0.inp,
             InputStatus::Disconnected => 0, // disconnected players do nothing
         };
         if input & INPUT_SPACE != 0 {
+            let laser_texture: Handle<Image>;
+            if player_type == &PlayerType::Ennemy {
+                laser_texture = game_textures.ennemy_laser.clone();
+            } else {
+                laser_texture = game_textures.ally_laser.clone();
+            }
             let dir = player_tf.rotation * Vec3::X;
             commands
                 .spawn_bundle(SpriteBundle {
-                    texture: game_textures.laser.clone(),
+                    texture: laser_texture,
                     transform: Transform {
                         translation: Vec3::new(
                             player_tf.translation.x,
