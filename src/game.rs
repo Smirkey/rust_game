@@ -25,11 +25,7 @@ pub(crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 720.0;
 const PLAYER_SIZE: f32 = 50.;
 
-pub fn input(
-    handle: In<PlayerHandle>,
-    keyboard_input: Res<bevy::input::Input<KeyCode>>,
-    local_handles: Res<LocalHandles>,
-) -> Input {
+pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<KeyCode>>) -> Input {
     let mut inp: u8 = 0;
     if keyboard_input.pressed(KeyCode::Up) {
         inp |= INPUT_UP
@@ -116,8 +112,6 @@ pub fn spawn_players(
 
     let mut handle: usize = 0;
 
-    spawn_player(&get_spawn_location(handle), PlayerType::Ego, &handle);
-    handle += 1;
     for _ in 0..NUM_ALLIES {
         spawn_player(&get_spawn_location(handle), PlayerType::Ally, &handle);
         handle += 1;

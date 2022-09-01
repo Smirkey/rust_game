@@ -6,6 +6,7 @@ use crate::{
     },
     components::{FrameCount, Input, Player, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
+    menu::connect::LocalHandles,
     ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
 };
 use bevy_ggrs::{Rollback, RollbackIdProvider};
@@ -70,12 +71,13 @@ pub fn apply_inputs(
 }
 
 pub fn camera_system(
+    local_handles: Res<LocalHandles>,
     mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerEntity>)>,
-    mut player: Query<(&mut Transform, &mut PlayerType), (With<PlayerEntity>, Without<Camera>)>,
+    mut player: Query<(&mut Transform, &Player), (With<PlayerEntity>, Without<Camera>)>,
 ) {
     for mut transform in camera.iter_mut() {
-        for (player_tf, player_type) in player.iter() {
-            if player_type == &PlayerType::Ego {
+        for (player_tf, player) in player.iter() {
+            if &player.handle == local_handles.handles.first().unwrap() {
                 transform.translation = player_tf.translation;
             }
         }

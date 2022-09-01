@@ -66,7 +66,6 @@ pub struct FrameCount {
 
 #[derive(Component, PartialEq)]
 pub enum PlayerType {
-    Ego,
     Ennemy,
     Ally,
 }
