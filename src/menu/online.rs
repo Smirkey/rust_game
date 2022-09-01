@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    AppState, FontAssets, BUTTON_TEXT, DISABLED_BUTTON, HOVERED_BUTTON, NORMAL_BUTTON,
+    AppState, FontAssets, BUTTON_TEXT, DISABLED_BUTTON, HOVERED_BUTTON, NORMAL_BUTTON, NUM_PLAYERS,
     PRESSED_BUTTON,
 };
 
@@ -273,7 +273,7 @@ pub fn btn_listeners(
             match btn {
                 MenuOnlineBtn::LobbyMatch => {
                     commands.insert_resource(ConnectData {
-                        lobby_id: format!("bevy{}", lobby_id.0),
+                        lobby_id: format!("bevy{}?next={}", lobby_id.0, NUM_PLAYERS),
                     });
                     state
                         .set(AppState::MenuConnect)
@@ -281,7 +281,7 @@ pub fn btn_listeners(
                 }
                 MenuOnlineBtn::QuickMatch => {
                     commands.insert_resource(ConnectData {
-                        lobby_id: "bevy?next=2".to_owned(),
+                        lobby_id: format!("bevy?next={}", NUM_PLAYERS).to_owned(),
                     });
                     state
                         .set(AppState::MenuConnect)
