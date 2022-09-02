@@ -2,13 +2,14 @@ use bevy::prelude::*;
 
 use crate::{
     components::{
-        AngularVelocity, LaserEntity, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity,
+        AngularVelocity, LaserType, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity,
     },
     components::{FrameCount, Input, Player, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
     ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
 };
+use bevy::sprite::collide_aabb::collide;
 use bevy_ggrs::{Rollback, RollbackIdProvider};
 use ggrs::InputStatus;
 
@@ -175,9 +176,19 @@ pub fn player_fire_system(
                     y: dir.y + player_velocity.y,
                 })
                 .insert(AngularVelocity { angle: 0. })
-                .insert(LaserEntity)
                 .insert(Rollback::new(rip.next_id()))
+                .insert(player_type.to_laser_type())
                 .insert(RoundEntity);
         }
     }
+}
+
+pub fn laser_hit_system(
+    mut commands: Commands,
+    game_textures: Res<ImageAssets>,
+    mut query: Query<
+        (&Transform, &Player, &Velocity, &PlayerType),
+        (With<LaserType>, With<Rollback> ,),
+    >,
+) {
 }

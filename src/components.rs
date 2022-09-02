@@ -49,9 +49,6 @@ pub struct Player {
 #[derive(Component)]
 pub struct RoundEntity;
 
-#[derive(Component)]
-pub struct LaserEntity;
-
 #[derive(Default, Reflect, Component)]
 pub struct CarControls {
     accel: f32,
@@ -65,7 +62,22 @@ pub struct FrameCount {
 }
 
 #[derive(Component, PartialEq)]
+pub enum LaserType {
+    Ennemy,
+    Ally,
+}
+
+#[derive(Component, PartialEq, Copy, Clone)]
 pub enum PlayerType {
     Ennemy,
     Ally,
+}
+
+impl PlayerType {
+    pub fn to_laser_type(self) -> LaserType {
+        match self {
+            PlayerType::Ally => LaserType::Ally,
+            PlayerType::Ennemy => LaserType::Ennemy,
+        }
+    }
 }
