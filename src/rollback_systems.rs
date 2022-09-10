@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{
-        AngularVelocity, LaserType, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity,
+        AngularVelocity, LaserType, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity, Ego, AllyPlayer,
     },
     components::{FrameCount, Input, Player, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
@@ -72,15 +72,12 @@ pub fn apply_inputs(
 }
 
 pub fn camera_system(
-    local_handles: Res<LocalHandles>,
     mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerEntity>)>,
-    mut player: Query<(&mut Transform, &Player), (With<PlayerEntity>, Without<Camera>)>,
+    mut player: Query<(&mut Transform, &Player), (With<Ego>, Without<Camera>)>,
 ) {
     for mut transform in camera.iter_mut() {
         for (player_tf, player) in player.iter() {
-            if &player.handle == local_handles.handles.first().unwrap() {
-                transform.translation = player_tf.translation;
-            }
+            transform.translation = player_tf.translation;
         }
     }
 }
@@ -186,9 +183,9 @@ pub fn player_fire_system(
 pub fn laser_hit_system(
     mut commands: Commands,
     game_textures: Res<ImageAssets>,
-    mut query: Query<
-        (&Transform, &Player, &Velocity, &PlayerType),
-        (With<LaserType>, With<Rollback> ,),
-    >,
+    mut enemy_lasers: Query<(&Transform, &Velocity), (With<EnnemyLaser>, With<Rollback>)>,
+    mut enemy_players: Query<(&Transform), (With<EnnemyPlayer>, With<Rollback>)>,
+    mut ally_players: Query<(&Transform), (With<AllyPlayer>, With<Rollback>)>,
+    mut ally_lasers: Query<(&Transform, &Velocity), (With<AllyLaser>, With<Rollback>)>,
 ) {
 }

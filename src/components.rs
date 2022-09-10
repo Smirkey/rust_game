@@ -67,17 +67,45 @@ pub enum LaserType {
     Ally,
 }
 
-#[derive(Component, PartialEq, Copy, Clone)]
-pub enum PlayerType {
-    Ennemy,
-    Ally,
+#[derive(Component)]
+pub struct EnnemyPlayer;
+#[derive(Component)]
+pub struct AllyPlayer;
+#[derive(Component)]
+pub struct EnnemyLaser;
+#[derive(Component)]
+pub struct AllyLaser;
+
+
+#[derive(PartialEq, Copy, Clone)]
+pub enum LaserType {
+    EnnemyLaser,
+    AllyLaser,
 }
 
+#[derive(PartialEq, Copy, Clone)]
+pub enum PlayerType {
+    EnnemyPlayer,
+    AllyPlayer,
+}
 impl PlayerType {
     pub fn to_laser_type(self) -> LaserType {
         match self {
-            PlayerType::Ally => LaserType::Ally,
-            PlayerType::Ennemy => LaserType::Ennemy,
+            EnnemyPlayer => EnnemyLaser,
+            AllyPlayer => AllyLaser,
         }
     }
 }
+
+#[derive(Component)]
+pub struct Ego;
+#[derive(Component)]
+pub struct Others;
+pub enum WhoAmI {
+    Others,
+    Ego,
+}
+
+
+#[derive(Component)]
+pub struct Ego;

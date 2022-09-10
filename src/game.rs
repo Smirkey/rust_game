@@ -11,7 +11,7 @@ use crate::{
     checksum::Checksum,
     components::{
         AngularVelocity, FrameCount, Input, Movable, Player, PlayerEntity, PlayerType, RoundEntity,
-        ThrustEngine, Velocity,
+        ThrustEngine, Velocity, Ego, Others,
     },
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_ALLIES, NUM_ENNEMIES, NUM_PLAYERS, PLAYER_SCALE,
@@ -66,6 +66,7 @@ pub fn spawn_players(
     mut commands: Commands,
     mut rip: ResMut<RollbackIdProvider>,
     game_textures: Res<ImageAssets>,
+    local_handles: Res<LocalHandles>,
 ) {
     let r = ARENA_SIZE / 4.;
 
@@ -75,6 +76,11 @@ pub fn spawn_players(
             texture = game_textures.ennemy.clone();
         } else {
             texture = game_textures.ally.clone();
+        }
+        if handle == local_handles.handles.first().unwrap() {
+            whoami = Ego;
+        } else {
+            whoami = Others;
         }
 
         commands
@@ -98,7 +104,8 @@ pub fn spawn_players(
             .insert(Rollback::new(rip.next_id()))
             .insert(PlayerEntity)
             .insert(RoundEntity)
-            .insert(player_type);
+            .insert(player_type)
+            .insert(whoami);
     };
 
     let get_spawn_location = |handle: usize| -> Transform {
