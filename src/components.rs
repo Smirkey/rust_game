@@ -1,4 +1,7 @@
-use bevy::{prelude::Component, reflect::Reflect};
+use bevy::{
+    prelude::{Component, Vec2},
+    reflect::Reflect,
+};
 use bytemuck::{Pod, Zeroable};
 
 #[derive(Default, Component, Debug, Reflect)]
@@ -17,6 +20,8 @@ pub struct Movable {
 pub struct PlayerEntity {
     pub ego: bool,
     pub handle: usize,
+    pub team: bool,
+    pub size: Vec2,
 }
 
 #[derive(Component)]
@@ -60,30 +65,7 @@ pub struct FrameCount {
 }
 
 #[derive(Component)]
-pub struct EnnemyPlayer;
-#[derive(Component)]
-pub struct AllyPlayer;
-#[derive(Component)]
-pub struct EnnemyLaser;
-#[derive(Component)]
-pub struct AllyLaser;
-
-#[derive(Component, PartialEq, Copy, Clone)]
-pub enum LaserType {
-    EnnemyLaser,
-    AllyLaser,
-}
-
-#[derive(Component, PartialEq, Copy, Clone)]
-pub enum PlayerType {
-    EnnemyPlayer,
-    AllyPlayer,
-}
-impl PlayerType {
-    pub fn to_laser_type(self) -> LaserType {
-        match self {
-            PlayerType::EnnemyPlayer => LaserType::EnnemyLaser,
-            PlayerType::AllyPlayer => LaserType::AllyLaser,
-        }
-    }
+pub struct Laser {
+    pub player_handle: usize,
+    pub player_team: bool,
 }

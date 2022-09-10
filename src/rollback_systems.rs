@@ -1,10 +1,7 @@
-use bevy::prelude::*;
+use bevy::{math::Vec3Swizzles, prelude::*};
 
 use crate::{
-    components::{
-        AllyLaser, AllyPlayer, AngularVelocity, EnnemyLaser, EnnemyPlayer, Movable, PlayerEntity,
-        PlayerType, ThrustEngine, Velocity,
-    },
+    components::{AngularVelocity, Laser, Movable, PlayerEntity, ThrustEngine, Velocity},
     components::{FrameCount, Input, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
@@ -133,10 +130,10 @@ pub fn player_fire_system(
     mut commands: Commands,
     inputs: Res<Vec<(Input, InputStatus)>>,
     game_textures: Res<ImageAssets>,
-    mut query: Query<(&Transform, &PlayerEntity, &Velocity, &PlayerType), With<Rollback>>,
+    mut query: Query<(&Transform, &PlayerEntity, &Velocity), With<Rollback>>,
     mut rip: ResMut<RollbackIdProvider>,
 ) {
-    for (player_tf, player, player_velocity, player_type) in query.iter_mut() {
+    for (player_tf, player, player_velocity) in query.iter_mut() {
         let input = match inputs[player.handle].1 {
             InputStatus::Confirmed => inputs[player.handle].0.inp,
             InputStatus::Predicted => inputs[player.handle].0.inp,
@@ -144,7 +141,7 @@ pub fn player_fire_system(
         };
         if input & INPUT_SPACE != 0 {
             let laser_texture: Handle<Image>;
-            if player_type == &PlayerType::EnnemyPlayer {
+            if player.team {
                 laser_texture = game_textures.ennemy_laser.clone();
             } else {
                 laser_texture = game_textures.ally_laser.clone();
@@ -177,7 +174,10 @@ pub fn player_fire_system(
                 })
                 .insert(AngularVelocity { angle: 0. })
                 .insert(Rollback::new(rip.next_id()))
-                .insert(player_type.to_laser_type())
+                .insert(Laser {
+                    player_handle: player.handle,
+                    player_team: player.team,
+                })
                 .insert(RoundEntity);
         }
     }
@@ -186,9 +186,28 @@ pub fn player_fire_system(
 pub fn laser_hit_system(
     mut commands: Commands,
     game_textures: Res<ImageAssets>,
-    mut enemy_lasers: Query<(&Transform, &Velocity), (With<EnnemyLaser>, With<Rollback>)>,
-    mut enemy_players: Query<(&Transform), (With<EnnemyPlayer>, With<Rollback>)>,
-    mut ally_players: Query<(&Transform), (With<AllyPlayer>, With<Rollback>)>,
-    mut ally_lasers: Query<(&Transform, &Velocity), (With<AllyLaser>, With<Rollback>)>,
+    mut lasers: Query<(Entity, &Transform, &Laser), (With<Laser>, With<Rollback>)>,
+    mut players: Query<(Entity, &Transform, &PlayerEntity), (With<PlayerEntity>, With<Rollback>)>,
 ) {
+    // Cross ally lasers with ennemy players
+    for (laser_entity, laser_tf, laser) in lasers.iter() {
+        for (player_entity, player_tf, player) in players.iter() {
+            if player.team != laser.player_team {
+                let laser_scale = Vec2::from(laser_tf.scale.xy());
+                let enemy_scale = Vec2::from(player_tf.scale.xy());
+
+                let collision = collide(
+                    laser_tf.translation,
+                    Vec2::new(10.0, 10.0),
+                    player_tf.translation,
+                    Vec2::new(10.0, 10.0),
+                );
+
+                if let Some(_) = collision {
+                    commands.entity(player_entity).despawn();
+                    commands.entity(laser_entity).despawn();
+                }
+            }
+        }
+    }
 }

@@ -18,7 +18,8 @@ use menu::{
     online::{update_lobby_btn, update_lobby_id, update_lobby_id_display},
 };
 use rollback_systems::{
-    apply_inputs, camera_system, increase_frame_count, movable_system, player_fire_system,
+    apply_inputs, camera_system, increase_frame_count, laser_hit_system, movable_system,
+    player_fire_system,
 };
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
@@ -80,6 +81,7 @@ enum SystemLabel {
     Input,
     ShootInput,
     Velocity,
+    Collisions,
 }
 
 #[derive(Debug)]
@@ -121,6 +123,13 @@ fn main() {
                                 .label(SystemLabel::Velocity)
                                 .after(SystemLabel::ShootInput)
                                 .after(SystemLabel::Input),
+                        )
+                        .with_system(
+                            laser_hit_system
+                                .label(SystemLabel::Collisions)
+                                .after(SystemLabel::ShootInput)
+                                .after(SystemLabel::Input)
+                                .after(SystemLabel::Velocity),
                         )
                         .with_system(camera_system)
                         .with_system(increase_frame_count),
