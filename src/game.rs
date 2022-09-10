@@ -10,8 +10,8 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 use crate::{
     checksum::Checksum,
     components::{
-        AngularVelocity, FrameCount, Input, Movable, Player, PlayerEntity, PlayerType, RoundEntity,
-        ThrustEngine, Velocity,
+        AngularVelocity, FrameCount, Input, Movable, PlayerEntity, RoundEntity, ThrustEngine,
+        Velocity,
     },
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_ALLIES, NUM_ENNEMIES, NUM_PLAYERS, PLAYER_SCALE,
@@ -66,16 +66,18 @@ pub fn spawn_players(
     mut commands: Commands,
     mut rip: ResMut<RollbackIdProvider>,
     game_textures: Res<ImageAssets>,
+    local_handles: Res<LocalHandles>,
 ) {
     let r = ARENA_SIZE / 4.;
 
-    let mut spawn_player = |transform: &Transform, player_type: PlayerType, handle: &usize| {
+    let mut spawn_player = |transform: &Transform, team: bool, handle: &usize| {
         let texture: Handle<Image>;
-        if player_type == PlayerType::Ennemy {
+        if team {
             texture = game_textures.ennemy.clone();
         } else {
             texture = game_textures.ally.clone();
         }
+        let ego_handle = local_handles.handles.first().unwrap();
 
         commands
             .spawn_bundle(SpriteBundle {
@@ -83,7 +85,6 @@ pub fn spawn_players(
                 texture: texture,
                 ..Default::default()
             })
-            .insert(Player { handle: *handle })
             .insert(Velocity::default())
             .insert(Movable {
                 auto_despawn: false,
@@ -96,9 +97,19 @@ pub fn spawn_players(
             })
             .insert(Checksum::default())
             .insert(Rollback::new(rip.next_id()))
-            .insert(PlayerEntity)
             .insert(RoundEntity)
-            .insert(player_type);
+            .insert(PlayerEntity {
+                ego: match handle {
+                    _ => false,
+                    ego_handle => true,
+                },
+                handle: *handle,
+                team,
+                size: match team {
+                    true => Vec2::new(75.0, 98.0),
+                    false => Vec2::new(84.0, 93.0),
+                },
+            });
     };
 
     let get_spawn_location = |handle: usize| -> Transform {
@@ -113,11 +124,11 @@ pub fn spawn_players(
     let mut handle: usize = 0;
 
     for _ in 0..NUM_ALLIES {
-        spawn_player(&get_spawn_location(handle), PlayerType::Ally, &handle);
+        spawn_player(&get_spawn_location(handle), false, &handle);
         handle += 1;
     }
     for _ in 0..NUM_ENNEMIES {
-        spawn_player(&get_spawn_location(handle), PlayerType::Ennemy, &handle);
+        spawn_player(&get_spawn_location(handle), true, &handle);
         handle += 1;
     }
 }

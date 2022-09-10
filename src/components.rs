@@ -1,4 +1,7 @@
-use bevy::{prelude::Component, reflect::Reflect};
+use bevy::{
+    prelude::{Component, Vec2},
+    reflect::Reflect,
+};
 use bytemuck::{Pod, Zeroable};
 
 #[derive(Default, Component, Debug, Reflect)]
@@ -14,7 +17,12 @@ pub struct Movable {
 }
 
 #[derive(Component)]
-pub struct PlayerEntity;
+pub struct PlayerEntity {
+    pub ego: bool,
+    pub handle: usize,
+    pub team: bool,
+    pub size: Vec2,
+}
 
 #[derive(Component)]
 pub struct AngularVelocity {
@@ -41,16 +49,8 @@ pub struct Input {
     pub inp: u8,
 }
 
-#[derive(Default, Component)]
-pub struct Player {
-    pub handle: usize,
-}
-
 #[derive(Component)]
 pub struct RoundEntity;
-
-#[derive(Component)]
-pub struct LaserEntity;
 
 #[derive(Default, Reflect, Component)]
 pub struct CarControls {
@@ -64,8 +64,9 @@ pub struct FrameCount {
     pub frame: u32,
 }
 
-#[derive(Component, PartialEq)]
-pub enum PlayerType {
-    Ennemy,
-    Ally,
+#[derive(Component)]
+pub struct Laser {
+    pub player_handle: usize,
+    pub player_team: bool,
+    pub size: Vec2,
 }

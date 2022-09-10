@@ -1,14 +1,13 @@
-use bevy::prelude::*;
+use bevy::{math::Vec3Swizzles, prelude::*};
 
 use crate::{
-    components::{
-        AngularVelocity, LaserEntity, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity,
-    },
-    components::{FrameCount, Input, Player, RoundEntity},
+    components::{AngularVelocity, Laser, Movable, PlayerEntity, ThrustEngine, Velocity},
+    components::{FrameCount, Input, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
     ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
 };
+use bevy::sprite::collide_aabb::collide;
 use bevy_ggrs::{Rollback, RollbackIdProvider};
 use ggrs::InputStatus;
 
@@ -23,7 +22,7 @@ pub fn apply_inputs(
             &mut Transform,
             &mut ThrustEngine,
             &mut AngularVelocity,
-            &Player,
+            &PlayerEntity,
         ),
         With<PlayerEntity>,
     >,
@@ -71,13 +70,12 @@ pub fn apply_inputs(
 }
 
 pub fn camera_system(
-    local_handles: Res<LocalHandles>,
     mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerEntity>)>,
-    mut player: Query<(&mut Transform, &Player), (With<PlayerEntity>, Without<Camera>)>,
+    mut player: Query<(&mut Transform, &PlayerEntity), (With<PlayerEntity>, Without<Camera>)>,
 ) {
     for mut transform in camera.iter_mut() {
-        for (player_tf, player) in player.iter() {
-            if &player.handle == local_handles.handles.first().unwrap() {
+        for (player_tf, whoami) in player.iter() {
+            if whoami.ego == true {
                 transform.translation = player_tf.translation;
             }
         }
@@ -132,10 +130,10 @@ pub fn player_fire_system(
     mut commands: Commands,
     inputs: Res<Vec<(Input, InputStatus)>>,
     game_textures: Res<ImageAssets>,
-    mut query: Query<(&Transform, &Player, &Velocity, &PlayerType), With<Rollback>>,
+    mut query: Query<(&Transform, &PlayerEntity, &Velocity), With<Rollback>>,
     mut rip: ResMut<RollbackIdProvider>,
 ) {
-    for (player_tf, player, player_velocity, player_type) in query.iter_mut() {
+    for (player_tf, player, player_velocity) in query.iter_mut() {
         let input = match inputs[player.handle].1 {
             InputStatus::Confirmed => inputs[player.handle].0.inp,
             InputStatus::Predicted => inputs[player.handle].0.inp,
@@ -143,7 +141,7 @@ pub fn player_fire_system(
         };
         if input & INPUT_SPACE != 0 {
             let laser_texture: Handle<Image>;
-            if player_type == &PlayerType::Ennemy {
+            if player.team {
                 laser_texture = game_textures.ennemy_laser.clone();
             } else {
                 laser_texture = game_textures.ally_laser.clone();
@@ -175,9 +173,45 @@ pub fn player_fire_system(
                     y: dir.y + player_velocity.y,
                 })
                 .insert(AngularVelocity { angle: 0. })
-                .insert(LaserEntity)
                 .insert(Rollback::new(rip.next_id()))
+                .insert(Laser {
+                    player_handle: player.handle,
+                    player_team: player.team,
+                    size: match player.team {
+                        true => Vec2::new(17.0, 55.0),
+                        false => Vec2::new(9.0, 54.0),
+                    },
+                })
                 .insert(RoundEntity);
+        }
+    }
+}
+
+pub fn laser_hit_system(
+    mut commands: Commands,
+    game_textures: Res<ImageAssets>,
+    mut lasers: Query<(Entity, &Transform, &Laser), (With<Laser>, With<Rollback>)>,
+    mut players: Query<(Entity, &Transform, &PlayerEntity), (With<PlayerEntity>, With<Rollback>)>,
+) {
+    // Cross ally lasers with ennemy players
+    for (laser_entity, laser_tf, laser) in lasers.iter() {
+        for (player_entity, player_tf, player) in players.iter() {
+            if player.team != laser.player_team {
+                let laser_scale = Vec2::from(laser_tf.scale.xy());
+                let enemy_scale = Vec2::from(player_tf.scale.xy());
+
+                let collision = collide(
+                    laser_tf.translation,
+                    laser.size,
+                    player_tf.translation,
+                    player.size,
+                );
+
+                if let Some(_) = collision {
+                    commands.entity(player_entity).despawn();
+                    commands.entity(laser_entity).despawn();
+                }
+            }
         }
     }
 }
