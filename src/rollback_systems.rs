@@ -177,6 +177,10 @@ pub fn player_fire_system(
                 .insert(Laser {
                     player_handle: player.handle,
                     player_team: player.team,
+                    size: match player.team {
+                        true => Vec2::new(17.0, 55.0),
+                        false => Vec2::new(9.0, 54.0),
+                    },
                 })
                 .insert(RoundEntity);
         }
@@ -198,9 +202,9 @@ pub fn laser_hit_system(
 
                 let collision = collide(
                     laser_tf.translation,
-                    Vec2::new(10.0, 10.0),
+                    laser.size,
                     player_tf.translation,
-                    Vec2::new(10.0, 10.0),
+                    player.size,
                 );
 
                 if let Some(_) = collision {

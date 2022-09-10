@@ -68,4 +68,5 @@ pub struct FrameCount {
 pub struct Laser {
     pub player_handle: usize,
     pub player_team: bool,
+    pub size: Vec2,
 }
