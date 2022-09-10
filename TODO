@@ -22,7 +22,7 @@ Adapt the menu to the following game modes:
 
 Game:
     step 1:
-        - Add colisions with laser
+        # - Add colisions with laser
         # - Add teams system
         # - First person camera
         - Bigger map
