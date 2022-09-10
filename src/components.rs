@@ -52,12 +52,6 @@ pub struct Input {
 #[derive(Component)]
 pub struct RoundEntity;
 
-#[derive(Default, Reflect, Component)]
-pub struct CarControls {
-    accel: f32,
-    steer: f32,
-}
-
 #[derive(Default, Reflect, Hash, Component)]
 #[reflect(Hash)]
 pub struct FrameCount {
