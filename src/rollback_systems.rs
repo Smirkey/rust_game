@@ -2,9 +2,10 @@ use bevy::prelude::*;
 
 use crate::{
     components::{
-        AngularVelocity, LaserType, Movable, PlayerEntity, PlayerType, ThrustEngine, Velocity, Ego, AllyPlayer,
+        AllyLaser, AllyPlayer, AngularVelocity, EnnemyLaser, EnnemyPlayer, Movable, PlayerEntity,
+        PlayerType, ThrustEngine, Velocity,
     },
-    components::{FrameCount, Input, Player, RoundEntity},
+    components::{FrameCount, Input, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
     ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
@@ -24,7 +25,7 @@ pub fn apply_inputs(
             &mut Transform,
             &mut ThrustEngine,
             &mut AngularVelocity,
-            &Player,
+            &PlayerEntity,
         ),
         With<PlayerEntity>,
     >,
@@ -73,11 +74,13 @@ pub fn apply_inputs(
 
 pub fn camera_system(
     mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerEntity>)>,
-    mut player: Query<(&mut Transform, &Player), (With<Ego>, Without<Camera>)>,
+    mut player: Query<(&mut Transform, &PlayerEntity), (With<PlayerEntity>, Without<Camera>)>,
 ) {
     for mut transform in camera.iter_mut() {
-        for (player_tf, player) in player.iter() {
-            transform.translation = player_tf.translation;
+        for (player_tf, whoami) in player.iter() {
+            if whoami.ego == true {
+                transform.translation = player_tf.translation;
+            }
         }
     }
 }
@@ -130,7 +133,7 @@ pub fn player_fire_system(
     mut commands: Commands,
     inputs: Res<Vec<(Input, InputStatus)>>,
     game_textures: Res<ImageAssets>,
-    mut query: Query<(&Transform, &Player, &Velocity, &PlayerType), With<Rollback>>,
+    mut query: Query<(&Transform, &PlayerEntity, &Velocity, &PlayerType), With<Rollback>>,
     mut rip: ResMut<RollbackIdProvider>,
 ) {
     for (player_tf, player, player_velocity, player_type) in query.iter_mut() {
@@ -141,7 +144,7 @@ pub fn player_fire_system(
         };
         if input & INPUT_SPACE != 0 {
             let laser_texture: Handle<Image>;
-            if player_type == &PlayerType::Ennemy {
+            if player_type == &PlayerType::EnnemyPlayer {
                 laser_texture = game_textures.ennemy_laser.clone();
             } else {
                 laser_texture = game_textures.ally_laser.clone();

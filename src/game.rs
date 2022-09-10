@@ -10,8 +10,8 @@ use ggrs::{InputStatus, P2PSession, PlayerHandle};
 use crate::{
     checksum::Checksum,
     components::{
-        AngularVelocity, FrameCount, Input, Movable, Player, PlayerEntity, PlayerType, RoundEntity,
-        ThrustEngine, Velocity, Ego, Others,
+        AngularVelocity, FrameCount, Input, Movable, PlayerEntity, PlayerType, RoundEntity,
+        ThrustEngine, Velocity,
     },
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_ALLIES, NUM_ENNEMIES, NUM_PLAYERS, PLAYER_SCALE,
@@ -72,15 +72,22 @@ pub fn spawn_players(
 
     let mut spawn_player = |transform: &Transform, player_type: PlayerType, handle: &usize| {
         let texture: Handle<Image>;
-        if player_type == PlayerType::Ennemy {
+        if player_type == PlayerType::EnnemyPlayer {
             texture = game_textures.ennemy.clone();
         } else {
             texture = game_textures.ally.clone();
         }
+        let whoami: PlayerEntity;
         if handle == local_handles.handles.first().unwrap() {
-            whoami = Ego;
+            whoami = PlayerEntity {
+                ego: true,
+                handle: *handle,
+            };
         } else {
-            whoami = Others;
+            whoami = PlayerEntity {
+                ego: false,
+                handle: *handle,
+            };
         }
 
         commands
@@ -89,7 +96,6 @@ pub fn spawn_players(
                 texture: texture,
                 ..Default::default()
             })
-            .insert(Player { handle: *handle })
             .insert(Velocity::default())
             .insert(Movable {
                 auto_despawn: false,
@@ -102,7 +108,6 @@ pub fn spawn_players(
             })
             .insert(Checksum::default())
             .insert(Rollback::new(rip.next_id()))
-            .insert(PlayerEntity)
             .insert(RoundEntity)
             .insert(player_type)
             .insert(whoami);
@@ -120,11 +125,15 @@ pub fn spawn_players(
     let mut handle: usize = 0;
 
     for _ in 0..NUM_ALLIES {
-        spawn_player(&get_spawn_location(handle), PlayerType::Ally, &handle);
+        spawn_player(&get_spawn_location(handle), PlayerType::AllyPlayer, &handle);
         handle += 1;
     }
     for _ in 0..NUM_ENNEMIES {
-        spawn_player(&get_spawn_location(handle), PlayerType::Ennemy, &handle);
+        spawn_player(
+            &get_spawn_location(handle),
+            PlayerType::EnnemyPlayer,
+            &handle,
+        );
         handle += 1;
     }
 }

@@ -14,7 +14,10 @@ pub struct Movable {
 }
 
 #[derive(Component)]
-pub struct PlayerEntity;
+pub struct PlayerEntity {
+    pub ego: bool,
+    pub handle: usize,
+}
 
 #[derive(Component)]
 pub struct AngularVelocity {
@@ -41,11 +44,6 @@ pub struct Input {
     pub inp: u8,
 }
 
-#[derive(Default, Component)]
-pub struct Player {
-    pub handle: usize,
-}
-
 #[derive(Component)]
 pub struct RoundEntity;
 
@@ -61,12 +59,6 @@ pub struct FrameCount {
     pub frame: u32,
 }
 
-#[derive(Component, PartialEq)]
-pub enum LaserType {
-    Ennemy,
-    Ally,
-}
-
 #[derive(Component)]
 pub struct EnnemyPlayer;
 #[derive(Component)]
@@ -76,14 +68,13 @@ pub struct EnnemyLaser;
 #[derive(Component)]
 pub struct AllyLaser;
 
-
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Component, PartialEq, Copy, Clone)]
 pub enum LaserType {
     EnnemyLaser,
     AllyLaser,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Component, PartialEq, Copy, Clone)]
 pub enum PlayerType {
     EnnemyPlayer,
     AllyPlayer,
@@ -91,21 +82,8 @@ pub enum PlayerType {
 impl PlayerType {
     pub fn to_laser_type(self) -> LaserType {
         match self {
-            EnnemyPlayer => EnnemyLaser,
-            AllyPlayer => AllyLaser,
+            PlayerType::EnnemyPlayer => LaserType::EnnemyLaser,
+            PlayerType::AllyPlayer => LaserType::AllyLaser,
         }
     }
 }
-
-#[derive(Component)]
-pub struct Ego;
-#[derive(Component)]
-pub struct Others;
-pub enum WhoAmI {
-    Others,
-    Ego,
-}
-
-
-#[derive(Component)]
-pub struct Ego;
