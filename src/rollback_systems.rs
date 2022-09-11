@@ -193,7 +193,6 @@ pub fn laser_hit_system(
     mut lasers: Query<(Entity, &Transform, &Laser), (With<Laser>, With<Rollback>)>,
     mut players: Query<(Entity, &Transform, &PlayerEntity), (With<PlayerEntity>, With<Rollback>)>,
 ) {
-    // Cross ally lasers with ennemy players
     for (laser_entity, laser_tf, laser) in lasers.iter() {
         for (player_entity, player_tf, player) in players.iter() {
             if player.team != laser.player_team {

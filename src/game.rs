@@ -1,3 +1,5 @@
+use bevy::render::camera::{CameraPlugin, CameraProjection, DepthCalculation};
+use bevy::render::primitives::Frustum;
 use bevy::render::view::VisibleEntities;
 use bevy::{math::Vec3, prelude::OrthographicCameraBundle};
 use bevy::{math::Vec3Swizzles, prelude::*};
@@ -41,10 +43,40 @@ pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<Ke
 }
 
 pub fn setup_camera(mut commands: Commands, local_handles: Res<LocalHandles>) {
-    // let ego_handle = local_handles.handles.first().unwrap();
-    commands
-        .spawn_bundle(OrthographicCameraBundle::new_2d())
-        .insert(RoundEntity);
+    let far = 500.0;
+    let orthographic_projection = OrthographicProjection {
+        left: 0.0,
+        right: 500.0,
+        top: 500.0,
+        bottom: 0.0,
+        scaling_mode: bevy::render::camera::ScalingMode::None,
+        depth_calculation: DepthCalculation::ZDifference,
+        ..Default::default()
+    };
+    let transform = Transform::from_xyz(0.0, 0.0, far - 0.1);
+    let view_projection =
+        orthographic_projection.get_projection_matrix() * transform.compute_matrix().inverse();
+    let frustum = Frustum::from_view_projection(
+        &view_projection,
+        &transform.translation,
+        &transform.back(),
+        orthographic_projection.far(),
+    );
+    let camera_bundle = OrthographicCameraBundle {
+        camera: Camera {
+            name: Some(CameraPlugin::CAMERA_2D.to_string()),
+            near: orthographic_projection.near,
+            far: orthographic_projection.far,
+            ..Default::default()
+        },
+        orthographic_projection,
+        visible_entities: VisibleEntities::default(),
+        frustum,
+        transform,
+        global_transform: Default::default(),
+    };
+
+    commands.spawn_bundle(camera_bundle).insert(RoundEntity);
 }
 
 pub fn setup_round(mut commands: Commands) {
