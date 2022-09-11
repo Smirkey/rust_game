@@ -1,8 +1,5 @@
-use bevy::{
-    math::Vec3,
-    prelude::OrthographicCameraBundle,
-    render::camera::{DepthCalculation, OrthographicProjection, ScalingMode},
-};
+use bevy::render::view::VisibleEntities;
+use bevy::{math::Vec3, prelude::OrthographicCameraBundle};
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
 use ggrs::{InputStatus, P2PSession, PlayerHandle};
@@ -22,7 +19,7 @@ pub(crate) const INPUT_LEFT: u8 = 0b0100;
 pub(crate) const INPUT_RIGHT: u8 = 0b1000;
 pub(crate) const INPUT_SPACE: u8 = 0b0010;
 pub(crate) const LASER_SPEED: f32 = 50.;
-pub(crate) const ARENA_SIZE: f32 = 720.0;
+pub(crate) const ARENA_SIZE: f32 = 2000.0;
 const PLAYER_SIZE: f32 = 50.;
 
 pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<KeyCode>>) -> Input {
@@ -43,11 +40,16 @@ pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<Ke
     Input { inp }
 }
 
-pub fn setup_round(mut commands: Commands) {
-    commands.insert_resource(FrameCount::default());
+pub fn setup_camera(mut commands: Commands, local_handles: Res<LocalHandles>) {
+    // let ego_handle = local_handles.handles.first().unwrap();
     commands
         .spawn_bundle(OrthographicCameraBundle::new_2d())
         .insert(RoundEntity);
+}
+
+pub fn setup_round(mut commands: Commands) {
+    // map terrain generation
+    commands.insert_resource(FrameCount::default());
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -70,19 +72,16 @@ pub fn spawn_players(
 ) {
     let r = ARENA_SIZE / 4.;
 
+    let ego_handle = local_handles.handles.first().unwrap();
     let mut spawn_player = |transform: &Transform, team: bool, handle: &usize| {
-        let texture: Handle<Image>;
-        if team {
-            texture = game_textures.ennemy.clone();
-        } else {
-            texture = game_textures.ally.clone();
-        }
-        let ego_handle = local_handles.handles.first().unwrap();
-
         commands
             .spawn_bundle(SpriteBundle {
                 transform: *transform,
-                texture: texture,
+                texture: if team {
+                    game_textures.ennemy.clone()
+                } else {
+                    game_textures.ally.clone()
+                },
                 ..Default::default()
             })
             .insert(Velocity::default())
@@ -99,10 +98,7 @@ pub fn spawn_players(
             .insert(Rollback::new(rip.next_id()))
             .insert(RoundEntity)
             .insert(PlayerEntity {
-                ego: match handle {
-                    _ => false,
-                    ego_handle => true,
-                },
+                ego: if handle == ego_handle { true } else { false },
                 handle: *handle,
                 team,
                 size: match team {

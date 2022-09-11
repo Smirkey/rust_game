@@ -75,7 +75,7 @@ pub fn camera_system(
 ) {
     for mut transform in camera.iter_mut() {
         for (player_tf, whoami) in player.iter() {
-            if whoami.ego == true {
+            if whoami.ego {
                 transform.translation = player_tf.translation;
             }
         }

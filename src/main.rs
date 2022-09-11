@@ -9,9 +9,9 @@ mod rollback_systems;
 use ::bevy::prelude::*;
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use bevy_ggrs::GGRSPlugin;
-use checksum::{checksum_players, Checksum};
+use checksum::{checksum, Checksum};
 use components::{AngularVelocity, FrameCount, Movable, Velocity};
-use game::{check_win, print_p2p_events, setup_round, spawn_players};
+use game::{check_win, print_p2p_events, setup_camera, setup_round, spawn_players};
 use ggrs::Config;
 use menu::{
     connect::{create_matchbox_socket, update_matchbox_socket},
@@ -81,7 +81,8 @@ enum SystemLabel {
     Input,
     ShootInput,
     Velocity,
-    Collisions,
+    SpawnPlayers,
+    RoundSetup,
 }
 
 #[derive(Debug)]
@@ -121,23 +122,16 @@ fn main() {
                         .with_system(
                             movable_system
                                 .label(SystemLabel::Velocity)
-                                .after(SystemLabel::ShootInput)
-                                .after(SystemLabel::Input),
+                                .after(SystemLabel::ShootInput),
                         )
-                        .with_system(
-                            laser_hit_system
-                                .label(SystemLabel::Collisions)
-                                .after(SystemLabel::ShootInput)
-                                .after(SystemLabel::Input)
-                                .after(SystemLabel::Velocity),
-                        )
+                        .with_system(laser_hit_system.after(SystemLabel::Velocity))
                         .with_system(camera_system)
                         .with_system(increase_frame_count),
                 )
                 .with_stage_after(
                     ROLLBACK_SYSTEMS,
                     CHECKSUM_UPDATE,
-                    SystemStage::parallel().with_system(checksum_players),
+                    SystemStage::parallel().with_system(checksum),
                 ),
         )
         .build(&mut app);
@@ -195,16 +189,26 @@ fn main() {
         // local round
         .add_system_set(
             SystemSet::on_enter(AppState::RoundLocal)
-                .with_system(setup_round)
-                .with_system(spawn_players),
+                .with_system(setup_round.label(SystemLabel::RoundSetup))
+                .with_system(
+                    spawn_players
+                        .label(SystemLabel::SpawnPlayers)
+                        .after(SystemLabel::RoundSetup),
+                )
+                .with_system(setup_camera.after(SystemLabel::RoundSetup)),
         )
         .add_system_set(SystemSet::on_update(AppState::RoundLocal).with_system(check_win))
         .add_system_set(SystemSet::on_exit(AppState::RoundLocal).with_system(game::cleanup))
         // online round
         .add_system_set(
             SystemSet::on_enter(AppState::RoundOnline)
-                .with_system(setup_round)
-                .with_system(spawn_players),
+                .with_system(setup_round.label(SystemLabel::RoundSetup))
+                .with_system(
+                    spawn_players
+                        .label(SystemLabel::SpawnPlayers)
+                        .after(SystemLabel::RoundSetup),
+                )
+                .with_system(setup_camera.after(SystemLabel::SpawnPlayers)),
         )
         .add_system_set(
             SystemSet::on_update(AppState::RoundOnline)
