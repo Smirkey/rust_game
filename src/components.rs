@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{Component, Vec2},
+    prelude::{Component, Timer, Vec2, Vec3},
     reflect::Reflect,
 };
 use bytemuck::{Pod, Zeroable};
@@ -63,4 +63,19 @@ pub struct Laser {
     pub player_handle: usize,
     pub player_team: bool,
     pub size: Vec2,
+}
+
+#[derive(Component)]
+pub struct Explosion;
+
+#[derive(Component)]
+pub struct ExplosionToSpawn(pub Vec3);
+
+#[derive(Component)]
+pub struct ExplosionTimer(pub Timer);
+
+impl Default for ExplosionTimer {
+    fn default() -> Self {
+        Self(Timer::from_seconds(0.05, true))
+    }
 }

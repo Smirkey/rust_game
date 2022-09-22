@@ -45,6 +45,8 @@ const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
 
+const EXPLOSION_LEN: usize = 16;
+
 #[derive(AssetCollection)]
 pub struct ImageAssets {
     #[asset(path = "images/skull.png")]
@@ -57,6 +59,8 @@ pub struct ImageAssets {
     pub ally: Handle<Image>,
     #[asset(path = "images/ennemy.png")]
     pub ennemy: Handle<Image>,
+    #[asset(path = "images/explo_sheet.png")]
+    pub explosion: Handle<TextureAtlas>,
 }
 
 #[derive(AssetCollection)]

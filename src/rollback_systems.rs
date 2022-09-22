@@ -1,11 +1,13 @@
 use bevy::{math::Vec3Swizzles, prelude::*};
 
 use crate::{
-    components::{AngularVelocity, Laser, Movable, PlayerEntity, ThrustEngine, Velocity},
-    components::{FrameCount, Input, RoundEntity},
+    components::{
+        AngularVelocity, ExplosionToSpawn, Laser, Movable, PlayerEntity, ThrustEngine, Velocity,
+    },
+    components::{Explosion, ExplosionTimer, FrameCount, Input, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
-    ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
+    ImageAssets, BASE_SPEED, EXPLOSION_LEN, LASER_SCALE, TIME_STEP,
 };
 use bevy::sprite::collide_aabb::collide;
 use bevy_ggrs::{Rollback, RollbackIdProvider};
@@ -110,13 +112,13 @@ pub fn movable_system(
                 commands.entity(entity).despawn();
             }
         } else {
-            if translation.y > ARENA_SIZE / 2. {
+            if translation.y >= ARENA_SIZE / 2. {
                 translation.y = ARENA_SIZE / 2.
-            } else if translation.y < -ARENA_SIZE / 2. {
+            } else if translation.y <= -ARENA_SIZE / 2. {
                 translation.y = -ARENA_SIZE / 2.
-            } else if translation.x > ARENA_SIZE / 2. {
+            } else if translation.x >= ARENA_SIZE / 2. {
                 translation.x = ARENA_SIZE / 2.
-            } else if translation.x < -ARENA_SIZE / 2. {
+            } else if translation.x <= -ARENA_SIZE / 2. {
                 translation.x = -ARENA_SIZE / 2.
             }
         }
@@ -209,7 +211,55 @@ pub fn laser_hit_system(
                 if let Some(_) = collision {
                     commands.entity(player_entity).despawn();
                     commands.entity(laser_entity).despawn();
+                    commands.spawn().insert(ExplosionToSpawn(Vec3::new(
+                        player_tf.translation.x,
+                        player_tf.translation.y,
+                        4.,
+                    )));
                 }
+            }
+        }
+    }
+}
+
+fn explosion_to_spawn_system(
+    mut commands: Commands,
+    game_textures: Res<ImageAssets>,
+    query: Query<(Entity, &ExplosionToSpawn)>,
+) {
+    for (explosion_spawn_entity, explosion_to_spawn) in query.iter() {
+        // spawn the explosion sprite
+        commands
+            .spawn_bundle(SpriteSheetBundle {
+                texture_atlas: game_textures.explosion.clone(),
+                transform: Transform {
+                    translation: explosion_to_spawn.0,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .insert(Explosion)
+            .insert(ExplosionTimer::default());
+
+        // despawn the explosionToSpawn
+        commands.entity(explosion_spawn_entity).despawn();
+    }
+}
+
+fn explosion_animation_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<
+        (Entity, &mut ExplosionTimer, &mut TextureAtlasSprite),
+        (With<Explosion>, With<Rollback>),
+    >,
+) {
+    for (entity, mut timer, mut sprite) in query.iter_mut() {
+        timer.0.tick(time.delta());
+        if timer.0.finished() {
+            sprite.index += 1; // move to next sprite cell
+            if sprite.index >= EXPLOSION_LEN {
+                commands.entity(entity).despawn()
             }
         }
     }
