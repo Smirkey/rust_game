@@ -13,7 +13,7 @@ ggrs = { version = "0.9", features=["sync-send"] }
 bevy_ggrs = "0.9"
 matchbox_socket = { git = "https://github.com/johanhelsing/matchbox", features = ["ggrs-socket"] }
 log = "0.4"
-rand = "0.4"
+rand = "0.6.5"
 
 
 [workspace]

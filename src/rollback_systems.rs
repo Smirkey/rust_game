@@ -111,13 +111,13 @@ pub fn movable_system(
             }
         } else {
             if translation.y > ARENA_SIZE / 2. {
-                translation.y = -ARENA_SIZE / 2.
+                translation.y = ARENA_SIZE / 2.
             } else if translation.y < -ARENA_SIZE / 2. {
                 translation.y = -ARENA_SIZE / 2.
-            } else if translation.x > ARENA_SIZE {
-                translation.x = -ARENA_SIZE / 2.
-            } else if translation.x < -ARENA_SIZE / 2. {
+            } else if translation.x > ARENA_SIZE / 2. {
                 translation.x = ARENA_SIZE / 2.
+            } else if translation.x < -ARENA_SIZE / 2. {
+                translation.x = -ARENA_SIZE / 2.
             }
         }
         if movable.steerable {
@@ -154,7 +154,7 @@ pub fn player_fire_system(
                         translation: Vec3::new(
                             player_tf.translation.x,
                             player_tf.translation.y,
-                            0.,
+                            2.,
                         ),
                         rotation: player_tf
                             .rotation

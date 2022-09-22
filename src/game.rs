@@ -1,11 +1,3 @@
-use bevy::render::camera::{CameraPlugin, CameraProjection, DepthCalculation};
-use bevy::render::primitives::Frustum;
-use bevy::render::view::VisibleEntities;
-use bevy::{math::Vec3, prelude::OrthographicCameraBundle};
-use bevy::{math::Vec3Swizzles, prelude::*};
-use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
-use ggrs::{InputStatus, P2PSession, PlayerHandle};
-
 use crate::{
     checksum::Checksum,
     components::{
@@ -15,6 +7,15 @@ use crate::{
     menu::{connect::LocalHandles, win::MatchData},
     AppState, GGRSConfig, ImageAssets, NUM_ALLIES, NUM_ENNEMIES, NUM_PLAYERS, PLAYER_SCALE,
 };
+use bevy::render::camera::{CameraPlugin, CameraProjection, DepthCalculation};
+use bevy::render::primitives::Frustum;
+use bevy::render::view::VisibleEntities;
+use bevy::{math::Vec3, prelude::OrthographicCameraBundle};
+use bevy::{math::Vec3Swizzles, prelude::*};
+use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
+use ggrs::{InputStatus, P2PSession, PlayerHandle};
+use rand;
+use rand::seq::SliceRandom;
 
 pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
@@ -23,6 +24,14 @@ pub(crate) const INPUT_SPACE: u8 = 0b0010;
 pub(crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 2000.0;
 const PLAYER_SIZE: f32 = 50.;
+const TILE_SIZE: f32 = 200.;
+const TILE_COLORS: [&Color; 5] = [
+    &Color::BLACK,
+    &Color::BLUE,
+    &Color::CYAN,
+    &Color::PURPLE,
+    &Color::TURQUOISE,
+];
 
 pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<KeyCode>>) -> Input {
     let mut inp: u8 = 0;
@@ -48,8 +57,7 @@ pub fn setup_camera(mut commands: Commands, local_handles: Res<LocalHandles>) {
         left: 0.0,
         right: 500.0,
         top: 500.0,
-        bottom: 0.0,
-        scaling_mode: bevy::render::camera::ScalingMode::None,
+        bottom: 100.0,
         depth_calculation: DepthCalculation::ZDifference,
         ..Default::default()
     };
@@ -79,21 +87,29 @@ pub fn setup_camera(mut commands: Commands, local_handles: Res<LocalHandles>) {
     commands.spawn_bundle(camera_bundle).insert(RoundEntity);
 }
 
-pub fn setup_round(mut commands: Commands) {
+pub fn setup_round(mut commands: Commands, game_textures: Res<ImageAssets>) {
     // map terrain generation
     commands.insert_resource(FrameCount::default());
-
-    commands
-        .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(0., 0., 0.),
-            sprite: Sprite {
-                color: Color::BLACK,
-                custom_size: Some(Vec2::new(ARENA_SIZE, ARENA_SIZE)),
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .insert(RoundEntity);
+    let mut rng = rand::thread_rng();
+    for i in -((ARENA_SIZE / 2.) / TILE_SIZE) as i32..((ARENA_SIZE / 2.) / TILE_SIZE) as i32 {
+        for j in -((ARENA_SIZE / 2.) / TILE_SIZE) as i32..((ARENA_SIZE / 2.) / TILE_SIZE) as i32 {
+            commands
+                .spawn_bundle(SpriteBundle {
+                    transform: Transform::from_translation(Vec3::new(
+                        i as f32 * TILE_SIZE,
+                        j as f32 * TILE_SIZE,
+                        1.,
+                    )),
+                    sprite: Sprite {
+                        color: **TILE_COLORS.choose(&mut rng).unwrap(),
+                        custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert(RoundEntity);
+        }
+    }
 }
 
 pub fn spawn_players(
@@ -145,7 +161,7 @@ pub fn spawn_players(
         let x = r * rot.cos();
         let y = r * rot.sin();
 
-        let mut transform = Transform::from_translation(Vec3::new(x, y, 1.));
+        let mut transform = Transform::from_translation(Vec3::new(x, y, 3.));
         transform
     };
 
