@@ -75,7 +75,7 @@ pub fn camera_system(
 ) {
     for mut transform in camera.iter_mut() {
         for (player_tf, whoami) in player.iter() {
-            if whoami.ego == true {
+            if whoami.ego {
                 transform.translation = player_tf.translation;
             }
         }
@@ -111,13 +111,13 @@ pub fn movable_system(
             }
         } else {
             if translation.y > ARENA_SIZE / 2. {
-                translation.y = -ARENA_SIZE / 2.
+                translation.y = ARENA_SIZE / 2.
             } else if translation.y < -ARENA_SIZE / 2. {
                 translation.y = -ARENA_SIZE / 2.
-            } else if translation.x > ARENA_SIZE {
-                translation.x = -ARENA_SIZE / 2.
-            } else if translation.x < -ARENA_SIZE / 2. {
+            } else if translation.x > ARENA_SIZE / 2. {
                 translation.x = ARENA_SIZE / 2.
+            } else if translation.x < -ARENA_SIZE / 2. {
+                translation.x = -ARENA_SIZE / 2.
             }
         }
         if movable.steerable {
@@ -154,7 +154,7 @@ pub fn player_fire_system(
                         translation: Vec3::new(
                             player_tf.translation.x,
                             player_tf.translation.y,
-                            0.,
+                            2.,
                         ),
                         rotation: player_tf
                             .rotation
@@ -193,7 +193,6 @@ pub fn laser_hit_system(
     mut lasers: Query<(Entity, &Transform, &Laser), (With<Laser>, With<Rollback>)>,
     mut players: Query<(Entity, &Transform, &PlayerEntity), (With<PlayerEntity>, With<Rollback>)>,
 ) {
-    // Cross ally lasers with ennemy players
     for (laser_entity, laser_tf, laser) in lasers.iter() {
         for (player_entity, player_tf, player) in players.iter() {
             if player.team != laser.player_team {

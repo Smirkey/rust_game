@@ -25,10 +25,11 @@ Game:
         # - Add colisions with laser
         # - Add teams system
         # - First person camera
+        - obstacles
         - Bigger map
+        - dots of random color on the
         - Spawning point predefined for each team
     step 2:
-        - obstacles ?
         - Different ship / different abilities ?
         - Life / Life bar
         - minimap
