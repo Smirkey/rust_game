@@ -19,7 +19,7 @@ use menu::{
 };
 use rollback_systems::{
     apply_inputs, camera_system, increase_frame_count, laser_hit_system, movable_system,
-    player_fire_system,
+    player_fire_system, explosion_animation_system, explosion_to_spawn_system,
 };
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
@@ -130,7 +130,9 @@ fn main() {
                         )
                         .with_system(laser_hit_system.after(SystemLabel::Velocity))
                         .with_system(camera_system)
-                        .with_system(increase_frame_count),
+                        .with_system(increase_frame_count)
+                        .with_system(explosion_animation_system)
+                        .with_system(explosion_to_spawn_system),
                 )
                 .with_stage_after(
                     ROLLBACK_SYSTEMS,

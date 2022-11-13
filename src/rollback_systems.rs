@@ -209,31 +209,36 @@ pub fn laser_hit_system(
                 );
 
                 if let Some(_) = collision {
+                    commands.spawn().insert(ExplosionToSpawn {
+                        translation: laser_tf.translation.clone(),
+                    });
                     commands.entity(player_entity).despawn();
                     commands.entity(laser_entity).despawn();
-                    commands.spawn().insert(ExplosionToSpawn(Vec3::new(
-                        player_tf.translation.x,
-                        player_tf.translation.y,
-                        4.,
-                    )));
                 }
             }
         }
     }
 }
 
-fn explosion_to_spawn_system(
+// Non rollback systems
+
+pub fn explosion_to_spawn_system(
     mut commands: Commands,
     game_textures: Res<ImageAssets>,
     query: Query<(Entity, &ExplosionToSpawn)>,
 ) {
     for (explosion_spawn_entity, explosion_to_spawn) in query.iter() {
+        println!("HET");
         // spawn the explosion sprite
         commands
             .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: game_textures.explosion.clone(),
                 transform: Transform {
-                    translation: explosion_to_spawn.0,
+                    translation: Vec3::new(
+                        explosion_to_spawn.translation.x,
+                        explosion_to_spawn.translation.y,
+                        3.,
+                    ),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -246,13 +251,10 @@ fn explosion_to_spawn_system(
     }
 }
 
-fn explosion_animation_system(
+pub fn explosion_animation_system(
     mut commands: Commands,
     time: Res<Time>,
-    mut query: Query<
-        (Entity, &mut ExplosionTimer, &mut TextureAtlasSprite),
-        (With<Explosion>, With<Rollback>),
-    >,
+    mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlasSprite)>,
 ) {
     for (entity, mut timer, mut sprite) in query.iter_mut() {
         timer.0.tick(time.delta());
