@@ -6,7 +6,7 @@ mod game;
 mod menu;
 mod rollback_systems;
 
-use ::bevy::prelude::*;
+use bevy::{prelude::*, ecs::system::Resource};
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use bevy_ggrs::GGRSPlugin;
 use checksum::{checksum, Checksum};
@@ -19,7 +19,7 @@ use menu::{
 };
 use rollback_systems::{
     apply_inputs, camera_system, increase_frame_count, laser_hit_system, movable_system,
-    player_fire_system,
+    player_fire_system, explosion_animation_system,
 };
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
@@ -44,6 +44,8 @@ const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+
+const EXPLOSION_LEN: usize = 16;
 
 #[derive(AssetCollection)]
 pub struct ImageAssets {
@@ -126,7 +128,9 @@ fn main() {
                         )
                         .with_system(laser_hit_system.after(SystemLabel::Velocity))
                         .with_system(camera_system)
-                        .with_system(increase_frame_count),
+                        .with_system(increase_frame_count)
+                        .with_system(explosion_animation_system)
+                        // .with_system(explosion_to_spawn_system),
                 )
                 .with_stage_after(
                     ROLLBACK_SYSTEMS,

@@ -14,8 +14,6 @@ use bevy::{math::Vec3, prelude::OrthographicCameraBundle};
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_ggrs::{Rollback, RollbackIdProvider, SessionType};
 use ggrs::{InputStatus, P2PSession, PlayerHandle};
-use rand;
-use rand::seq::SliceRandom;
 
 pub(crate) const INPUT_UP: u8 = 0b0001;
 pub(crate) const INPUT_LEFT: u8 = 0b0100;
@@ -25,13 +23,7 @@ pub(crate) const LASER_SPEED: f32 = 50.;
 pub(crate) const ARENA_SIZE: f32 = 2000.0;
 const PLAYER_SIZE: f32 = 50.;
 const TILE_SIZE: f32 = 200.;
-const TILE_COLORS: [&Color; 5] = [
-    &Color::BLACK,
-    &Color::BLUE,
-    &Color::CYAN,
-    &Color::PURPLE,
-    &Color::TURQUOISE,
-];
+const TILE_COLORS: [Color; 2] = [Color::DARK_GRAY, Color::ANTIQUE_WHITE];
 
 pub fn input(handle: In<PlayerHandle>, keyboard_input: Res<bevy::input::Input<KeyCode>>) -> Input {
     let mut inp: u8 = 0;
@@ -90,7 +82,6 @@ pub fn setup_camera(mut commands: Commands, local_handles: Res<LocalHandles>) {
 pub fn setup_round(mut commands: Commands, game_textures: Res<ImageAssets>) {
     // map terrain generation
     commands.insert_resource(FrameCount::default());
-    let mut rng = rand::thread_rng();
     for i in -((ARENA_SIZE / 2.) / TILE_SIZE) as i32..((ARENA_SIZE / 2.) / TILE_SIZE) as i32 {
         for j in -((ARENA_SIZE / 2.) / TILE_SIZE) as i32..((ARENA_SIZE / 2.) / TILE_SIZE) as i32 {
             commands
@@ -101,7 +92,11 @@ pub fn setup_round(mut commands: Commands, game_textures: Res<ImageAssets>) {
                         1.,
                     )),
                     sprite: Sprite {
-                        color: **TILE_COLORS.choose(&mut rng).unwrap(),
+                        color: if (i % 2 == 0 && j % 2 == 0) || (i % 2 != 0 && j % 2 != 0) {
+                            TILE_COLORS[0]
+                        } else {
+                            TILE_COLORS[1]
+                        },
                         custom_size: Some(Vec2::new(TILE_SIZE, TILE_SIZE)),
                         ..Default::default()
                     },

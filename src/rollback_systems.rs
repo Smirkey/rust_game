@@ -1,11 +1,13 @@
 use bevy::{math::Vec3Swizzles, prelude::*};
 
 use crate::{
-    components::{AngularVelocity, Laser, Movable, PlayerEntity, ThrustEngine, Velocity},
-    components::{FrameCount, Input, RoundEntity},
+    components::{
+        AngularVelocity, ExplosionToSpawn, Laser, Movable, PlayerEntity, ThrustEngine, Velocity,
+    },
+    components::{Explosion, ExplosionTimer, FrameCount, Input, RoundEntity},
     game::{ARENA_SIZE, INPUT_LEFT, INPUT_RIGHT, INPUT_SPACE, INPUT_UP, LASER_SPEED},
     menu::connect::LocalHandles,
-    ImageAssets, BASE_SPEED, LASER_SCALE, TIME_STEP,
+    ImageAssets, BASE_SPEED, EXPLOSION_LEN, LASER_SCALE, TIME_STEP,
 };
 use bevy::sprite::collide_aabb::collide;
 use bevy_ggrs::{Rollback, RollbackIdProvider};
@@ -110,13 +112,13 @@ pub fn movable_system(
                 commands.entity(entity).despawn();
             }
         } else {
-            if translation.y > ARENA_SIZE / 2. {
+            if translation.y >= ARENA_SIZE / 2. {
                 translation.y = ARENA_SIZE / 2.
-            } else if translation.y < -ARENA_SIZE / 2. {
+            } else if translation.y <= -ARENA_SIZE / 2. {
                 translation.y = -ARENA_SIZE / 2.
-            } else if translation.x > ARENA_SIZE / 2. {
+            } else if translation.x >= ARENA_SIZE / 2. {
                 translation.x = ARENA_SIZE / 2.
-            } else if translation.x < -ARENA_SIZE / 2. {
+            } else if translation.x <= -ARENA_SIZE / 2. {
                 translation.x = -ARENA_SIZE / 2.
             }
         }
@@ -207,9 +209,29 @@ pub fn laser_hit_system(
                 );
 
                 if let Some(_) = collision {
+                    commands.spawn().insert(ExplosionToSpawn {
+                        translation: laser_tf.translation.clone(),
+                    });
                     commands.entity(player_entity).despawn();
                     commands.entity(laser_entity).despawn();
                 }
+            }
+        }
+    }
+}
+
+pub fn explosion_animation_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlasSprite)>,
+) {
+    for (entity, mut timer, mut sprite) in query.iter_mut() {
+        println!("TIC");
+        timer.0.tick(time.delta());
+        if timer.0.finished() {
+            sprite.index += 1; // move to next sprite cell
+            if sprite.index >= EXPLOSION_LEN {
+                commands.entity(entity).despawn()
             }
         }
     }
