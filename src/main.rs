@@ -6,7 +6,7 @@ mod game;
 mod menu;
 mod rollback_systems;
 
-use ::bevy::prelude::*;
+use bevy::{prelude::*, ecs::system::Resource};
 use bevy_asset_loader::{AssetCollection, AssetLoader};
 use bevy_ggrs::GGRSPlugin;
 use checksum::{checksum, Checksum};
@@ -19,7 +19,7 @@ use menu::{
 };
 use rollback_systems::{
     apply_inputs, camera_system, increase_frame_count, laser_hit_system, movable_system,
-    player_fire_system, explosion_animation_system, explosion_to_spawn_system,
+    player_fire_system, explosion_animation_system,
 };
 
 const PLAYER_SPRITE: &str = "player_a_01.png";
@@ -59,8 +59,6 @@ pub struct ImageAssets {
     pub ally: Handle<Image>,
     #[asset(path = "images/ennemy.png")]
     pub ennemy: Handle<Image>,
-    #[asset(path = "images/explo_sheet.png")]
-    pub explosion: Handle<TextureAtlas>,
 }
 
 #[derive(AssetCollection)]
@@ -132,7 +130,7 @@ fn main() {
                         .with_system(camera_system)
                         .with_system(increase_frame_count)
                         .with_system(explosion_animation_system)
-                        .with_system(explosion_to_spawn_system),
+                        // .with_system(explosion_to_spawn_system),
                 )
                 .with_stage_after(
                     ROLLBACK_SYSTEMS,

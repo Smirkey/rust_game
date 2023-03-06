@@ -220,43 +220,13 @@ pub fn laser_hit_system(
     }
 }
 
-// Non rollback systems
-
-pub fn explosion_to_spawn_system(
-    mut commands: Commands,
-    game_textures: Res<ImageAssets>,
-    query: Query<(Entity, &ExplosionToSpawn)>,
-) {
-    for (explosion_spawn_entity, explosion_to_spawn) in query.iter() {
-        println!("HET");
-        // spawn the explosion sprite
-        commands
-            .spawn_bundle(SpriteSheetBundle {
-                texture_atlas: game_textures.explosion.clone(),
-                transform: Transform {
-                    translation: Vec3::new(
-                        explosion_to_spawn.translation.x,
-                        explosion_to_spawn.translation.y,
-                        3.,
-                    ),
-                    ..Default::default()
-                },
-                ..Default::default()
-            })
-            .insert(Explosion)
-            .insert(ExplosionTimer::default());
-
-        // despawn the explosionToSpawn
-        commands.entity(explosion_spawn_entity).despawn();
-    }
-}
-
 pub fn explosion_animation_system(
     mut commands: Commands,
     time: Res<Time>,
     mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlasSprite)>,
 ) {
     for (entity, mut timer, mut sprite) in query.iter_mut() {
+        println!("TIC");
         timer.0.tick(time.delta());
         if timer.0.finished() {
             sprite.index += 1; // move to next sprite cell
